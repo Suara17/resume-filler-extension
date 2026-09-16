@@ -1,0 +1,142 @@
+{
+  "basic": {
+    "name": "张三",
+    "gender": "男",
+    "ethnicity": "汉族",
+    "birth": "2001-01-01",
+    "height": "175cm",
+    "weight": "65kg",
+    "phone": "13800138000",
+    "email": "zhangsan@example.com",
+    "political": "共青团员",
+    "city": "北京市海淀区",
+    "nativePlace": "北京市",
+    "website": "https://example.com/portfolio",
+    "github": "https://github.com/example",
+    "emergencyContact": "张父",
+    "emergencyRelation": "父亲",
+    "emergencyPhone": "13900139000",
+    "jobIntent": "全栈开发工程师 / AI应用工程师",
+    "selfEval": "熟练掌握前端与后端开发技术体系，具备良好的系统架构思维与快速学习能力；热衷于技术探索与开源贡献，能够独立主导并推进复杂功能落地。",
+    "selfDescription": "严谨负责，抗压能力强，乐于沟通协作，对新技术保持敏锐嗅觉与钻研精神。",
+    "highestDegree": "硕士",
+    "country": "中国",
+    "acceptRelocation": "是",
+    "extraInfo": "随时可到岗，支持现场或远程面试",
+    "idCard": "110108200101011234",
+    "wechat": "zhangsan_dev",
+    "residence": "北京市海淀区中关村南大街1号"
+  },
+  "education": [
+    {
+      "school": "示例科技大学",
+      "degree": "硕士",
+      "department": "计算机科学与技术学院",
+      "major": "计算机科学与技术",
+      "start": "2023-09",
+      "end": "2026-06",
+      "gpa": "3.8/4.0",
+      "studentId": "2023010001",
+      "schoolLocation": "北京市海淀区",
+      "supervisor": "李教授",
+      "researchDirection": "人工智能与大语言模型应用",
+      "courses": "高级算法设计, 深度学习, 分布式系统",
+      "majorDescription": "专注于大语言模型智能体（Agent）工作流与前后端协同架构研究。",
+      "thesisTopic": "基于大语言模型的多代理协同系统设计与优化",
+      "labExperience": "参与国家级实验室重点科研项目，负责多智能体协同调用框架设计与性能评测。"
+    },
+    {
+      "school": "示例理工大学",
+      "degree": "本科",
+      "department": "软件工程学院",
+      "major": "软件工程",
+      "start": "2019-09",
+      "end": "2023-06",
+      "gpa": "3.7/4.0",
+      "studentId": "2019010002",
+      "schoolLocation": "北京市海淀区",
+      "supervisor": "王教授",
+      "researchDirection": "Web全栈技术与云原生开发",
+      "courses": "数据结构, 操作系统, 计算机网络, 数据库系统概论",
+      "majorDescription": "系统掌握计算机科学基础与软件工程规范，具备扎实的编码基础。",
+      "thesisTopic": "现代微服务架构下的高并发实时协作系统实现",
+      "labExperience": "负责本科生科技创新实验室核心 Web 系统搭建与日常维护。"
+    }
+  ],
+  "internship": [
+    {
+      "company": "示例科技创新有限公司",
+      "position": "全栈开发实习生",
+      "start": "2024-06",
+      "end": "2024-12",
+      "desc": "负责公司企业级 AI 提效平台的前后端功能迭代与性能调优；搭建可视化工作流编排组件，沉淀 10+ 常用业务自动化模板；优化后端异步任务分发机制，使平均任务响应时延降低 35%，支持日均上万次自动化调用。"
+    }
+  ],
+  "project": [
+    {
+      "name": "多智能体任务协同与工作流系统",
+      "role": "核心研发",
+      "start": "2024-01",
+      "end": "2024-05",
+      "tech": "React, FastAPI, Docker, WebSocket",
+      "desc": "面向自动化复杂任务场景的轻量化 Agent 调度平台，支持工具插件动态注册与可视化执行回溯。",
+      "duty": "负责核心执行引擎的调度状态机设计与前端实时监控交互界面的实现，完成与主流大模型 API 的流式协议集成。",
+      "result": "通过多轮压力测试，任务执行成功率达 99.2%，相关代码已在团队内部开源并推广至 3 个业务线。"
+    },
+    {
+      "name": "高并发在线协作表单系统",
+      "role": "项目负责人",
+      "start": "2023-10",
+      "end": "2023-12",
+      "tech": "Vue3, Node.js, Redis, MongoDB",
+      "desc": "支持万人同时在线填写与实时字段校验的表单引擎系统，提供组件化拖拽配置与批量数据导出能力。",
+      "duty": "负责数据层缓存方案设计、协同冲突合并算法研发以及前后端关键链路的安全加固与灰度发布。",
+      "result": "系统峰值 QPS 超过 3000，整体稳定性达 99.99%，获得校级优秀创新实践项目一等奖。"
+    }
+  ],
+  "competition": [
+    {
+      "name": "全国大学生计算机系统与程序设计竞赛",
+      "start": "2023-05",
+      "end": "2023-06",
+      "desc": "担任队长负责系统架构与核心算法设计，荣获全国总决赛一等奖。"
+    }
+  ],
+  "paper": [
+    {
+      "title": "A Robust Multi-Agent Collaborative Framework for Automated Workflows",
+      "result": "已录用 (CCF-B 类国际会议)",
+      "desc": "提出了一种基于上下文图拓扑约束的动态智能体通信与回溯机制，显著提升了长程复杂任务的执行稳定性与可解释性。"
+    }
+  ],
+  "skills": "编程语言：熟练掌握 JavaScript/TypeScript, Python, Java；前端栈：熟练掌握 React, Vue3, HTML5/CSS3, Chrome Extension 扩展开发；后端与数据库：掌握 Node.js, FastAPI, Spring Boot, MySQL, Redis, MongoDB；工具链与体系：熟悉 Git, Docker, Linux, CI/CD 自动化流水线；AI 领域：熟悉 Prompt Engineering, MCP 协议, Agent 框架与主流大模型调用。",
+  "languages": "大学英语六级 (CET-6 580分)，具备优秀的英文文献研读与日常技术英文交流能力",
+  "honors": [
+    {
+      "name": "研究生国家奖学金",
+      "date": "2024-11",
+      "level": "国家级"
+    },
+    {
+      "name": "校级三好学生标兵",
+      "date": "2023-10",
+      "level": "校级"
+    }
+  ],
+  "family": [
+    {
+      "relation": "父亲",
+      "name": "张父",
+      "company": "示例科技有限公司",
+      "position": "工程师",
+      "phone": "13900139000"
+    },
+    {
+      "relation": "母亲",
+      "name": "李母",
+      "company": "示例教育机构",
+      "position": "教师",
+      "phone": "13900139001"
+    }
+  ]
+}

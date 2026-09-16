@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>求职网申模拟测试页面 - 简历自动填充助手</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background-color: #f1f5f9;
+      color: #334155;
+      padding: 40px 20px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    h1 {
+      text-align: center;
+      color: #1e3a8a;
+      margin-bottom: 30px;
+    }
+    .section {
+      background: white;
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05);
+      margin-bottom: 24px;
+    }
+    .section-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #1e3a8a;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 8px;
+      margin-bottom: 20px;
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .form-group.full-width {
+      grid-column: span 2;
+    }
+    label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #475569;
+    }
+    input[type="text"], input[type="email"], select, textarea {
+      padding: 10px 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      font-size: 14px;
+      color: #1e293b;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgb(59 130 246 / 0.1);
+    }
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+    .btn-container {
+      text-align: center;
+      margin-top: 30px;
+    }
+    button.submit-btn {
+      background-color: #1e3a8a;
+      color: white;
+      padding: 12px 30px;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    button.submit-btn:hover {
+      background-color: #1d4ed8;
+    }
+    .sub-section {
+      background-color: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    .sub-section-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #475569;
+      margin-bottom: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>求职网申模拟系统</h1>
+
+  <form id="mock-form" onsubmit="event.preventDefault(); alert('表单提交成功！可以在控制台查看提交的值。'); console.log(Object.fromEntries(new FormData(this)));">
+    
+    <!-- 基本信息 -->
+    <div class="section">
+      <div class="section-title">基本信息 (Basic Info)</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="username">姓名 (Name) *</label>
+          <input type="text" id="username" name="username" placeholder="请输入真实姓名">
+        </div>
+        <div class="form-group">
+          <label for="last_name">姓氏 (Last Name / 姓)</label>
+          <input type="text" id="last_name" name="lastName" placeholder="如：张">
+        </div>
+        <div class="form-group">
+          <label for="first_name">名字 (First Name / 名)</label>
+          <input type="text" id="first_name" name="firstName" placeholder="如：蕊">
+        </div>
+        <div class="form-group">
+          <label for="gender">性别 (Gender) *</label>
+          <select id="gender" name="gender">
+            <option value="">请选择性别</option>
+            <option value="男">男</option>
+            <option value="女">女</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="ethnicity">民族 (Ethnicity) *</label>
+          <select id="ethnicity" name="ethnicity">
+            <option value="">请选择民族</option>
+            <option value="汉族">汉族</option>
+            <option value="满族">满族</option>
+            <option value="回族">回族</option>
+            <option value="蒙古族">蒙古族</option>
+            <option value="藏族">藏族</option>
+            <option value="壮族">壮族</option>
+            <option value="其他">其他</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="birthday">出生日期 (Date of Birth - 模拟受控日期组件)</label>
+          <input type="text" id="birthday" name="birthday" readonly placeholder="YYYY-MM-DD" class="ant-picker-input">
+          <div id="birthday-error" style="color: #ef4444; font-size: 11px; margin-top: 3px; display: block;">* 必填项未填写</div>
+        </div>
+        <div class="form-group">
+          <label for="height">身高 (Height)</label>
+          <input type="text" id="height" name="height" placeholder="如：160cm 或 160">
+        </div>
+        <div class="form-group">
+          <label for="weight">体重 (Weight)</label>
+          <input type="text" id="weight" name="weight" placeholder="如：67kg 或 67">
+        </div>
+        <div class="form-group">
+          <label for="phone">联系电话 (Phone) *</label>
+          <input type="text" id="phone" name="phone" placeholder="请输入11位手机号码">
+        </div>
+        <div class="form-group">
+          <label for="email">电子邮箱 (Email) *</label>
+          <input type="email" id="email" name="email" placeholder="example@domain.com">
+        </div>
+        <div class="form-group">
+          <label for="political">政治面貌 (Political Status - 下拉框)</label>
+          <select id="political" name="political">
+            <option value="">请选择政治面貌</option>
+            <option value="共青团员">共青团员</option>
+            <option value="中共党员">中共党员</option>
+            <option value="中共预备党员">中共预备党员</option>
+            <option value="群众">群众</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="idcard">身份证号 (ID Card)</label>
+          <input type="text" id="idcard" name="idCard" placeholder="请输入身份证号">
+        </div>
+        <div class="form-group">
+          <label for="wechat">微信号 (WeChat)</label>
+          <input type="text" id="wechat" name="wechat" placeholder="请输入微信号">
+        </div>
+        <div class="form-group">
+          <label for="residence_province">现居住省 (Residence Province)</label>
+          <input type="text" id="residence_province" name="residenceProvince" placeholder="如：北京市">
+        </div>
+        <div class="form-group">
+          <label for="residence_city">现居住市 (Residence City)</label>
+          <input type="text" id="residence_city" name="residenceCity" placeholder="如：北京市">
+        </div>
+        <div class="form-group">
+          <label for="city">现居城市 (Current City)</label>
+          <input type="text" id="city" name="city" placeholder="如：北京">
+        </div>
+        <div class="form-group">
+          <label for="residence">现居详细地址 (Residence)</label>
+          <input type="text" id="residence" name="residence" placeholder="如：北京市海淀区中关村大街1号">
+        </div>
+        <div class="form-group">
+          <label for="native_province">户籍所在地省 (Native Province)</label>
+          <input type="text" id="native_province" name="nativeProvince" placeholder="如：山东省">
+        </div>
+        <div class="form-group">
+          <label for="native_city">户籍所在地市 (Native City)</label>
+          <input type="text" id="native_city" name="nativeCity" placeholder="如：济南市">
+        </div>
+        <div class="form-group">
+          <label for="hukou_place">户口所在地 (Hukou Location)</label>
+          <input type="text" id="hukou_place" name="hukouPlace" placeholder="如：山东省济南市">
+        </div>
+        <div class="form-group">
+          <label for="source_place">生源所在地 (Source Location)</label>
+          <input type="text" id="source_place" name="sourcePlace" placeholder="如：山东省济南市">
+        </div>
+        <div class="form-group" style="position: relative;">
+          <label for="native_place">籍贯 (Hometown - 模拟级联选择)</label>
+          <input type="text" id="native_place" name="nativePlace" placeholder="如：山东省济南市" class="cascader-input">
+          <div id="demo-cascader-menu" class="ant-cascader-menus" style="display: none; position: absolute; top: 62px; left: 0; background: #fff; border: 1px solid #cbd5e1; border-radius: 6px; box-shadow: 0 4px 14px rgba(0,0,0,0.12); z-index: 100;">
+            <ul class="ant-cascader-menu" style="list-style: none; padding: 4px; border-right: 1px solid #e2e8f0; max-height: 140px; overflow-y: auto;">
+              <li class="ant-cascader-menu-item" style="padding: 4px 10px; cursor: pointer; font-size: 12px;">北京</li>
+              <li class="ant-cascader-menu-item" style="padding: 4px 10px; cursor: pointer; font-size: 12px;">河北</li>
+              <li class="ant-cascader-menu-item" style="padding: 4px 10px; cursor: pointer; font-size: 12px; background: #eef2ff; color: #4f46e5; font-weight: 600;">山东</li>
+              <li class="ant-cascader-menu-item" style="padding: 4px 10px; cursor: pointer; font-size: 12px;">浙江</li>
+              <li class="ant-cascader-menu-item" style="padding: 4px 10px; cursor: pointer; font-size: 12px;">江苏</li>
+            </ul>
+            <ul class="ant-cascader-menu" style="list-style: none; padding: 4px; max-height: 140px; overflow-y: auto;">
+              <li class="ant-cascader-menu-item" style="padding: 4px 10px; cursor: pointer; font-size: 12px; background: #eef2ff; color: #4f46e5; font-weight: 600;">济南</li>
+              <li class="ant-cascader-menu-item" style="padding: 4px 10px; cursor: pointer; font-size: 12px;">青岛</li>
+              <li class="ant-cascader-menu-item" style="padding: 4px 10px; cursor: pointer; font-size: 12px;">烟台</li>
+              <li class="ant-cascader-menu-item" style="padding: 4px 10px; cursor: pointer; font-size: 12px;">潍坊</li>
+            </ul>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="job_intent">求职意向 (Job Intent) *</label>
+          <input type="text" id="job_intent" name="jobIntent" placeholder="期望申请的职位">
+        </div>
+        <div class="form-group">
+          <label for="website">个人网页 (Website)</label>
+          <input type="text" id="website" name="website" placeholder="https://...">
+        </div>
+        <div class="form-group">
+          <label for="github">GitHub 主页 (GitHub)</label>
+          <input type="text" id="github" name="github" placeholder="https://github.com/...">
+        </div>
+        <div class="form-group">
+          <label for="emergency_contact">紧急联系人姓名 (Emergency Contact)</label>
+          <input type="text" id="emergency_contact" name="emergencyContact" placeholder="紧急联系人姓名">
+        </div>
+        <div class="form-group">
+          <label for="emergency_relation">与本人关系 (Relationship)</label>
+          <input type="text" id="emergency_relation" name="emergencyRelation" placeholder="如：父母/配偶">
+        </div>
+        <div class="form-group">
+          <label for="emergency_phone">紧急联系人电话 (Emergency Phone)</label>
+          <input type="text" id="emergency_phone" name="emergencyPhone" placeholder="紧急联系人电话">
+        </div>
+        <div class="form-group full-width">
+          <label for="self_eval">自我评价 (Self-Evaluation)</label>
+          <textarea id="self_eval" name="selfEval" placeholder="请简短地评价一下自己"></textarea>
+        </div>
+        <div class="form-group full-width">
+          <label for="self_description">自我描述 (Self-Description)</label>
+          <textarea id="self_description" name="selfDescription" placeholder="描述个人特质、性格与风格亮点..."></textarea>
+        </div>
+
+        <!-- 模拟真实北森/大易 (baictruck.zhiye.com) Phoenix 凤凰组件树 -->
+        <div class="form-group full-width" style="margin-top: 8px; padding: 12px; background: #f1f5f9; border-radius: 8px; border: 1px dashed #cbd5e1;">
+          <div style="font-weight: 700; color: #1e293b; margin-bottom: 8px; font-size: 13px;">🏛️ 模拟北森/大易 (zhiye.com) 真实组件DOM结构：</div>
+          
+          <!-- 北森身份证号 (Label在前置兄弟容器，input在control深层子树) -->
+          <div class="form-item phoenix__form-item" style="margin-bottom: 8px;">
+            <div class="form-item-label phoenix__form-item-label">
+              <label style="font-weight: 600;">身份证号码 *</label>
+            </div>
+            <div class="form-item-control phoenix__form-item-control">
+              <div class="phoenix__input-wrapper">
+                <input class="phoenix__input" name="c_id_number" placeholder="请输入">
+              </div>
+            </div>
+          </div>
+
+          <!-- 北森户口所在地 -->
+          <div class="form-item phoenix__form-item" style="margin-bottom: 8px;">
+            <div class="form-item-label phoenix__form-item-label">
+              <label style="font-weight: 600;">户口所在地 *</label>
+            </div>
+            <div class="form-item-control phoenix__form-item-control">
+              <div class="phoenix__input-wrapper">
+                <input class="phoenix__input" name="c_hukou" placeholder="请输入">
+              </div>
+            </div>
+          </div>
+
+          <!-- 北森民族下拉 -->
+          <div class="form-item phoenix__form-item" style="margin-bottom: 8px;">
+            <div class="form-item-label phoenix__form-item-label">
+              <label style="font-weight: 600;">民族 *</label>
+            </div>
+            <div class="form-item-control phoenix__form-item-control">
+              <select class="phoenix__select" name="c_nation" style="width: 100%; padding: 6px;">
+                <option value="">请选择民族</option>
+                <option value="汉族">汉族</option>
+                <option value="少数民族">少数民族</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- 北森籍贯 -->
+          <div class="form-item phoenix__form-item">
+            <div class="form-item-label phoenix__form-item-label">
+              <label style="font-weight: 600;">籍贯 *</label>
+            </div>
+            <div class="form-item-control phoenix__form-item-control">
+              <div class="phoenix__input-wrapper">
+                <input class="phoenix__input" name="c_native" placeholder="请输入">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 教育经历 -->
+    <div class="section">
+      <div class="section-title">教育背景 (Education History)</div>
+      
+      <!-- 最高教育经历 -->
+      <div class="sub-section">
+        <div class="sub-section-title">教育经历 1 (最高学历)</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>毕业学校 (School)</label>
+            <input type="text" name="edu_school_1" placeholder="就读学校名称">
+          </div>
+          <div class="form-group">
+            <label>学院 (Department)</label>
+            <input type="text" name="edu_department_1" placeholder="院系/学院名称">
+          </div>
+          <div class="form-group">
+            <label>学号 (Student ID)</label>
+            <input type="text" name="edu_student_id_1" placeholder="学号">
+          </div>
+          <div class="form-group">
+            <label>学校所在地 (School Location)</label>
+            <input type="text" name="edu_school_location_1" placeholder="学校所在城市/地址">
+          </div>
+          <div class="form-group">
+            <label>学历学位 (Degree)</label>
+            <input type="text" name="edu_degree_1" placeholder="大专/本科/硕士/博士">
+          </div>
+          <div class="form-group">
+            <label>所学专业 (Major)</label>
+            <input type="text" name="edu_major_1" placeholder="专业名称">
+          </div>
+          <div class="form-group">
+            <label>学业成绩/GPA (Score)</label>
+            <input type="text" name="edu_gpa_1" placeholder="如：3.8/4.0">
+          </div>
+          <div class="form-group">
+            <label>入学年月 (MonthPicker)</label>
+            <input type="text" name="edu_start_1" placeholder="YYYY-MM" class="month-picker">
+          </div>
+          <div class="form-group">
+            <label>毕业年月 (MonthPicker)</label>
+            <input type="text" name="edu_end_1" placeholder="YYYY-MM" class="month-picker">
+          </div>
+          <div class="form-group">
+            <label>入学年份 (Start Year)</label>
+            <input type="text" name="edu_start_year_1" placeholder="如：2024">
+          </div>
+          <div class="form-group">
+            <label>入学月份 (Start Month)</label>
+            <input type="text" name="edu_start_month_1" placeholder="如：09">
+          </div>
+          <div class="form-group">
+            <label>毕业年份 (Graduation Year)</label>
+            <input type="text" name="edu_end_year_1" placeholder="如：2027">
+          </div>
+          <div class="form-group">
+            <label>毕业月份 (Graduation Month)</label>
+            <input type="text" name="edu_end_month_1" placeholder="如：06">
+          </div>
+
+          <!-- 硕士就读时间：年-月 至 年-月 四个下拉框 -->
+          <div class="form-group full-width" style="margin: 8px 0; padding: 10px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px;">
+            <label style="font-weight: 600; color: #334155; margin-bottom: 6px; display: block;">硕士就读时间 (四个下拉框：年 - 月 至 年 - 月)</label>
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+              <select name="edu1_start_year" style="width: 105px; padding: 6px; border-radius: 4px; border: 1px solid #cbd5e1;">
+                <option value="">入学年</option>
+                <option value="2022">2022年</option>
+                <option value="2023">2023年</option>
+                <option value="2024">2024年</option>
+                <option value="2025">2025年</option>
+              </select>
+              <span>年</span>
+              <select name="edu1_start_month" style="width: 85px; padding: 6px; border-radius: 4px; border: 1px solid #cbd5e1;">
+                <option value="">入学月</option>
+                <option value="01">1月</option>
+                <option value="06">6月</option>
+                <option value="09">9月</option>
+                <option value="12">12月</option>
+              </select>
+              <span>月</span>
+              <span style="margin: 0 6px; font-weight: bold; color: #64748b;">至</span>
+              <select name="edu1_end_year" style="width: 105px; padding: 6px; border-radius: 4px; border: 1px solid #cbd5e1;">
+                <option value="">毕业年</option>
+                <option value="2025">2025年</option>
+                <option value="2026">2026年</option>
+                <option value="2027">2027年</option>
+                <option value="2028">2028年</option>
+              </select>
+              <span>年</span>
+              <select name="edu1_end_month" style="width: 85px; padding: 6px; border-radius: 4px; border: 1px solid #cbd5e1;">
+                <option value="">毕业月</option>
+                <option value="01">1月</option>
+                <option value="06">6月</option>
+                <option value="07">7月</option>
+                <option value="09">9月</option>
+              </select>
+              <span>月</span>
+            </div>
+          </div>
+          <div class="form-group full-width">
+            <label>导师姓名 (Advisor / Supervisor)</label>
+            <input type="text" name="edu_supervisor_1" placeholder="指导老师姓名">
+          </div>
+          <div class="form-group full-width">
+            <label>专业描述 (Major Description)</label>
+            <textarea name="edu_major_desc_1" placeholder="主修专业介绍与研究侧重..."></textarea>
+          </div>
+          <div class="form-group full-width">
+            <label>毕业论文/设计/作品 (Graduation Thesis / Design)</label>
+            <textarea name="edu_thesis_1" placeholder="毕业论文或设计题目与主要成果..."></textarea>
+          </div>
+          <div class="form-group full-width">
+            <label>主修课程 / 专业课程 (Major Courses)</label>
+            <input type="text" name="edu_courses_1" placeholder="主修专业课程列表">
+          </div>
+          <div class="form-group full-width">
+            <label>研究方向 (Research Direction)</label>
+            <input type="text" name="edu_research_direction_1" placeholder="如：自然语言处理/计算机视觉">
+          </div>
+        </div>
+      </div>
+
+      <!-- 次高教育经历 (本科) -->
+      <div class="sub-section">
+        <div class="sub-section-title">教育经历 2 (大学本科经历)</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>本科学校名称 (Bachelor School)</label>
+            <input type="text" name="edu_school_2" placeholder="本科就读学校">
+          </div>
+          <div class="form-group">
+            <label>学历</label>
+            <input type="text" name="edu_degree_2" placeholder="如：本科">
+          </div>
+          <div class="form-group">
+            <label>专业</label>
+            <input type="text" name="edu_major_2" placeholder="专业名称">
+          </div>
+          <div class="form-group">
+            <label>绩点 GPA</label>
+            <input type="text" name="edu_gpa_2" placeholder="绩点排名">
+          </div>
+          <div class="form-group">
+            <label>本科入学时间</label>
+            <input type="text" name="edu_start_2" placeholder="YYYY-MM">
+          </div>
+          <div class="form-group">
+            <label>本科毕业时间</label>
+            <input type="text" name="edu_end_2" placeholder="YYYY-MM">
+          </div>
+          <div class="form-group">
+            <label>本科毕业年份</label>
+            <input type="text" name="edu_end_year_2" placeholder="如：2024">
+          </div>
+
+          <!-- 本科就读时间：年-月 至 年-月 四个下拉框 -->
+          <div class="form-group full-width" style="margin: 8px 0; padding: 10px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px;">
+            <label style="font-weight: 600; color: #334155; margin-bottom: 6px; display: block;">本科就读时间 (四个下拉框：年 - 月 至 年 - 月)</label>
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+              <select name="edu2_start_year" style="width: 105px; padding: 6px; border-radius: 4px; border: 1px solid #cbd5e1;">
+                <option value="">入学年</option>
+                <option value="2018">2018年</option>
+                <option value="2019">2019年</option>
+                <option value="2020">2020年</option>
+                <option value="2021">2021年</option>
+              </select>
+              <span>年</span>
+              <select name="edu2_start_month" style="width: 85px; padding: 6px; border-radius: 4px; border: 1px solid #cbd5e1;">
+                <option value="">入学月</option>
+                <option value="06">6月</option>
+                <option value="09">9月</option>
+                <option value="10">10月</option>
+              </select>
+              <span>月</span>
+              <span style="margin: 0 6px; font-weight: bold; color: #64748b;">至</span>
+              <select name="edu2_end_year" style="width: 105px; padding: 6px; border-radius: 4px; border: 1px solid #cbd5e1;">
+                <option value="">毕业年</option>
+                <option value="2023">2023年</option>
+                <option value="2024">2024年</option>
+                <option value="2025">2025年</option>
+              </select>
+              <span>年</span>
+              <select name="edu2_end_month" style="width: 85px; padding: 6px; border-radius: 4px; border: 1px solid #cbd5e1;">
+                <option value="">毕业月</option>
+                <option value="06">6月</option>
+                <option value="07">7月</option>
+                <option value="09">9月</option>
+              </select>
+              <span>月</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 工作实习经历 -->
+    <div class="section">
+      <div class="section-title">工作/实习经历 (Work Experience)</div>
+      
+      <div class="sub-section">
+        <div class="sub-section-title">实习经历 1</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>公司名称 (Company)</label>
+            <input type="text" name="work_company_1" placeholder="实习或工作单位">
+          </div>
+          <div class="form-group">
+            <label>职位名称 (Position)</label>
+            <input type="text" name="work_position_1" placeholder="如：前端开发实习生">
+          </div>
+          <div class="form-group">
+            <label>入职时间</label>
+            <input type="text" name="work_start_1" placeholder="YYYY-MM">
+          </div>
+          <div class="form-group">
+            <label>离职时间</label>
+            <input type="text" name="work_end_1" placeholder="YYYY-MM">
+          </div>
+          <div class="form-group full-width">
+            <label>职责与工作描述 (Description)</label>
+            <textarea name="work_desc_1" placeholder="描述你的实习工作职责和内容..."></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 项目经历 -->
+    <div class="section">
+      <div class="section-title">项目经历 (Projects)</div>
+      
+      <div class="sub-section">
+        <div class="sub-section-title">项目经历 1</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>项目名称 (Project Name)</label>
+            <input type="text" name="proj_name_1" placeholder="项目名称">
+          </div>
+          <div class="form-group">
+            <label>担任角色 (Role)</label>
+            <input type="text" name="proj_role_1" placeholder="你在项目中的角色">
+          </div>
+          <div class="form-group">
+            <label>项目开始时间</label>
+            <input type="text" name="proj_start_1" placeholder="YYYY-MM">
+          </div>
+          <div class="form-group">
+            <label>项目结束时间</label>
+            <input type="text" name="proj_end_1" placeholder="YYYY-MM">
+          </div>
+          <div class="form-group full-width">
+            <label>技术栈 (Technologies)</label>
+            <input type="text" name="proj_tech_1" placeholder="主要使用的技术栈">
+          </div>
+          <div class="form-group full-width">
+            <label>项目描述 (Project Description)</label>
+            <textarea name="proj_desc_1" placeholder="描述项目背景、目标定位等..."></textarea>
+          </div>
+          <div class="form-group full-width">
+            <label>项目职责 (Project Responsibilities)</label>
+            <textarea name="proj_duty_1" placeholder="描述你在项目中的具体分工与职责..."></textarea>
+          </div>
+          <div class="form-group full-width">
+            <label>项目成果 (Project Achievements)</label>
+            <textarea name="proj_result_1" placeholder="描述项目取得的量化成果、产出等..."></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 专业技能 & 荣誉奖项 -->
+    <div class="section">
+      <div class="section-title">专业技能 & 荣誉奖项</div>
+      <div class="form-grid">
+        <div class="form-group full-width">
+          <label for="skills_textarea">专业技能 (Skills) *</label>
+          <textarea id="skills_textarea" name="skills" placeholder="列出你的技能树..."></textarea>
+        </div>
+        
+        <div class="form-group full-width" style="margin-top: 10px;">
+          <label>荣誉奖项 1 (Award)</label>
+          <div class="form-grid" style="grid-template-columns: 1fr 1fr 1fr;">
+            <div class="form-group">
+              <label>奖项名称</label>
+              <input type="text" name="honor_name_1" placeholder="获得的奖项名称">
+            </div>
+            <div class="form-group">
+              <label>获奖时间</label>
+              <input type="text" name="honor_date_1" placeholder="如：2023-11">
+            </div>
+            <div class="form-group">
+              <label>颁发级别/机构</label>
+              <input type="text" name="honor_level_1" placeholder="教育部/一等奖">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 家庭成员社会关系模拟 (国企/大厂网申高频) -->
+    <div class="section">
+      <div class="section-title">家庭成员与主要社会关系 (Family Information)</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>父亲姓名 (Father Name)</label>
+          <input type="text" name="father_name" placeholder="如：张某某">
+        </div>
+        <div class="form-group">
+          <label>父亲工作单位 (Company)</label>
+          <input type="text" name="father_company" placeholder="工作单位名称">
+        </div>
+        <div class="form-group">
+          <label>父亲联系电话 (Phone)</label>
+          <input type="text" name="father_phone" placeholder="手机号码">
+        </div>
+      </div>
+    </div>
+
+    <!-- 校招合规问卷与背调声明模拟 (Declarations) -->
+    <div class="section">
+      <div class="section-title">合规声明与问卷调查 (Declarations)</div>
+      <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 6px;">
+        <div class="form-group question-item" style="padding: 10px; background: #f8fafc; border-radius: 6px; border: 1px solid #e2e8f0;">
+          <label style="font-weight: 600; color: #334155;">1. 是否有直系亲属在应聘单位及关联单位任职？ *</label>
+          <div style="display: flex; gap: 16px; margin-top: 6px;">
+            <label style="cursor: pointer; display: flex; align-items: center; gap: 4px;"><input type="radio" name="relatives" value="是"> 是</label>
+            <label style="cursor: pointer; display: flex; align-items: center; gap: 4px;"><input type="radio" name="relatives" value="否"> 否</label>
+          </div>
+        </div>
+
+        <div class="form-group question-item" style="padding: 10px; background: #f8fafc; border-radius: 6px; border: 1px solid #e2e8f0;">
+          <label style="font-weight: 600; color: #334155;">2. 是否曾有违法违纪、刑事处罚或不良诚信记录？ *</label>
+          <div style="display: flex; gap: 16px; margin-top: 6px;">
+            <label style="cursor: pointer; display: flex; align-items: center; gap: 4px;"><input type="radio" name="punish" value="是"> 是</label>
+            <label style="cursor: pointer; display: flex; align-items: center; gap: 4px;"><input type="radio" name="punish" value="否"> 否</label>
+          </div>
+        </div>
+
+        <div class="form-group question-item" style="padding: 10px; background: #f8fafc; border-radius: 6px; border: 1px solid #e2e8f0;">
+          <label style="font-weight: 600; color: #334155;">3. 是否同意公司对所填信息进行入职背景调查与学历核验？ *</label>
+          <div style="display: flex; gap: 16px; margin-top: 6px;">
+            <label style="cursor: pointer; display: flex; align-items: center; gap: 4px;"><input type="radio" name="bg_check" value="是"> 是 (同意)</label>
+            <label style="cursor: pointer; display: flex; align-items: center; gap: 4px;"><input type="radio" name="bg_check" value="否"> 否 (拒绝)</label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 用户协议与条款模拟 -->
+    <div style="margin: 16px 0 8px 0; display: flex; align-items: center; gap: 8px; font-size: 13px; color: #475569;">
+      <input type="checkbox" id="agreement-checkbox" name="agreement">
+      <label for="agreement-checkbox" style="cursor: pointer;">我已详细阅读并同意《候选人个人信息保护政策》与《求职申请用户协议》</label>
+    </div>
+
+    <div class="btn-container">
+      <button type="submit" class="submit-btn" id="btn-submit-apply">确认投递网申信息</button>
+    </div>
+
+  </form>
+
+  <!-- 本地演示支持 -->
+  <script src="content.js"></script>
+  <script src="floating_card.js"></script>
+  <script>
+    const nativeInput = document.getElementById("native_place");
+    const demoMenu = document.getElementById("demo-cascader-menu");
+    if (nativeInput && demoMenu) {
+      nativeInput.addEventListener("focus", () => { demoMenu.style.display = "flex"; });
+      nativeInput.addEventListener("click", () => { demoMenu.style.display = "flex"; });
+      document.addEventListener("click", (e) => {
+        if (!nativeInput.contains(e.target) && !demoMenu.contains(e.target)) {
+          demoMenu.style.display = "none";
+        }
+      });
+    }
+
+    // 模拟 React / Ant Design 等日期组件受控校验
+    const birthdayInput = document.getElementById("birthday");
+    const birthdayError = document.getElementById("birthday-error");
+    function validateBirthday() {
+      if (birthdayInput && birthdayError) {
+        if (/^\d{4}[-/.]\d{2}[-/.]\d{2}$/.test(birthdayInput.value.trim())) {
+          birthdayError.style.display = "none";
+        } else {
+          birthdayError.style.display = "block";
+        }
+      }
+    }
+    if (birthdayInput) {
+      birthdayInput.addEventListener("input", validateBirthday);
+      birthdayInput.addEventListener("change", validateBirthday);
+      birthdayInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") validateBirthday();
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>简历自动填充助手</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Header -->
+  <div class="header">
+    <div class="header-title" style="display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 10px;">
+      <div style="display: flex; align-items: center; gap: 6px;">
+        <span class="header-logo" style="font-size: 16px;">🪄</span>
+        <span style="font-size: 14px; font-weight: 600;">简历填充助手</span>
+      </div>
+      <!-- 简历版本管理与切换 -->
+      <div style="display: flex; align-items: center; gap: 4px;">
+        <select id="select-resume-version" class="form-control" style="width: 110px; padding: 4px 6px !important; font-size: 11px; height: 26px; border-radius: var(--radius-sm); margin-right: 2px;"></select>
+        <button class="field-btn" id="btn-resume-rename" title="重命名当前版本" style="padding: 2px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+        <button class="field-btn" id="btn-resume-add" title="另存为新版本" style="padding: 2px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+        <button class="field-btn" id="btn-resume-delete" title="删除当前版本" style="padding: 2px; color: var(--danger-color);"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2-2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></button>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-primary" id="btn-smart-fill" title="自动识别当前网页的所有输入框并填充">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/></svg>
+        智能填充整页
+      </button>
+      <button class="btn btn-secondary" id="btn-import">
+        导入 JSON
+      </button>
+      <button class="btn btn-secondary" id="btn-export">
+        导出
+      </button>
+      <button class="btn btn-danger btn-sm" id="btn-clear" style="margin-left: auto;">
+        清空
+      </button>
+      <input type="file" id="import-file-input" accept=".json">
+    </div>
+  </div>
+
+  <!-- Tabs Navigation -->
+  <div class="tabs-nav">
+    <button class="tab-btn active" data-tab="tab-basic">基本信息</button>
+    <button class="tab-btn" data-tab="tab-education">教育背景</button>
+    <button class="tab-btn" data-tab="tab-internship">工作实习</button>
+    <button class="tab-btn" data-tab="tab-project">项目经历</button>
+    <button class="tab-btn" data-tab="tab-skills">技能荣誉</button>
+    <button class="tab-btn" data-tab="tab-pub-comp">论文/赛事</button>
+    <button class="tab-btn" data-tab="tab-ai">AI 优化</button>
+  </div>
+
+  <!-- Tabs Content -->
+  <div class="tabs-content">
+    
+    <!-- Tab 1: Basic Info -->
+    <div class="tab-panel active" id="tab-basic">
+      <div class="form-group">
+        <label class="form-label">姓名</label>
+        <div class="form-input-wrapper">
+          <input type="text" class="form-control" data-key="basic.name" placeholder="如：张三">
+          <div class="field-actions">
+            <button class="field-btn btn-copy" data-ref="basic.name" title="复制"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+            <button class="field-btn btn-fill-field" data-ref="basic.name" title="填充到当前焦点输入框"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="form-group">
+          <label class="form-label">性别</label>
+          <div class="form-input-wrapper">
+            <input type="text" class="form-control" data-key="basic.gender" placeholder="男 / 女">
+            <div class="field-actions">
+              <button class="field-btn btn-copy" data-ref="basic.gender"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+              <button class="field-btn btn-fill-field" data-ref="basic.gender"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></button>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">民族</label>
+          <div class="form-input-wrapper">
+            <input type="text" class="form-control" data-key="basic.ethnicity" placeholder="如：汉族">
+            <div class="field-actions">
+              <button class="field-btn btn-copy" data-ref="basic.ethnicity"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+              <button class="field-btn btn-fill-field" data-ref="basic.ethnicity"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="form-group">
+          <label class="form-label">生日</label>
+          <div class="form-input-wrapper">
+            <input type="text" class="form-control" data-key="basic.birth" placeholder="如：1999-01-01">
+            <div class="field-actions">
+              <button class="field-btn btn-copy" data-ref="basic.birth"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+              <button class="field-btn btn-fill-field" data-ref="basic.birth"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></button>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">政治面貌</label>
+          <div class="form-input-wrapper">
+            <input type="text" class="form-control" data-key="basic.political" placeholder="群众/共青团员/党员">
+            <div class="field-actions">
+              <button class="field-btn btn-copy" data-ref="basic.political"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+              <button class="field-btn btn-fill-field" data-ref="basic.political"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="form-group">
+          <label class="form-label">身高</label>
+          <div class="form-input-wrapper">
+            <input type="text" class="form-control" data-key="basic.height" placeholder="如：160cm 或 160">
+            <div class="field-actions">
+              <button class="field-btn btn-copy" data-ref="basic.height"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+              <button class="field-btn btn-fill-field" data-ref="basic.height"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></button>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">体重</label>
+          <div class="form-input-wrapper">
+            <input type="text" class="form-control" data-key="basic.weight" placeholder="如：67kg 或 67">
+            <div class="field-actions">
+              <button class="field-btn btn-copy" data-ref="basic.weight"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+              <button class="field-btn btn-fill-field" data-ref="basic.weight"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">手机号码</label>
+        <div class="form-input-wrapper">
+          <input type="text" class="form-control" data-key="basic.phone" placeholder="如：13800000000">
+          <div class="field-actions">
+            <button class="field-btn btn-copy" data-ref="basic.phone"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+            <button class="field-btn btn-fill-field" data-ref="basic.phone"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">电子邮箱</label>
+        <div class="form-input-wrapper">
+          <input type="email" class="form-control" data-key="basic.email" placeholder="如：example@qq.com">
+          <div class="field-actions">
+            <button class="field-btn btn-copy" data-ref="basic.email"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+            <button class="field-btn btn-fill-field" data-ref="basic.email"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="form-group">
+          <label class="form-label">现居城市</label>
+          <div class="form-input-wrapper">
+            <input type="text" class="form-control" data-key="basic.city" placeholder="如：北京">
+            <div class="field-actions">
+              <button class="field-btn btn-copy" data-ref="basic.city"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+              <button class="field-btn btn-fill-field" data-ref="basic.city"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></button>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">籍贯</label>
+          <div class="form-input-wrapper">
+            <input type="text" class="form-control" data-key="basic.nativePlace" placeholder="如：山东济南">
+            <div class="field-actions">
+              <button class="field-btn btn-copy" data-ref="basic.nativePlace"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+              <button class="field-btn btn-fill-field" data-ref="basic.nativePlace"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">求职意向</label>
+        <div class="form-input-wrapper">
+          <input type="text" class="form-control" data-key="basic.jobIntent" placeholder="如：前端开发工程师">
+          <div class="field-actions">
+            <button class="field-btn btn-copy" data-ref="basic.jobIntent"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+            <button class="field-btn btn-fill-field" data-ref="basic.jobIntent"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="form-group">
+          <label class="form-label">身份证号</label>
+          <div class="form-input-wrapper">
+            <input type="text" class="form-control" data-key="basic.idCard" placeholder="如：370123199901011234">
+            <div class="field-actions">
+              <button class="field-btn btn-copy" data-ref="basic.idCard" title="复制"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+              <button class="field-btn btn-fill-field" data-ref="basic.idCard" title="填充到当前焦点输入框"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></button>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">微信号</label>
+          <div class="form-input-wrapper">
+            <input type="text" class="form-control" data-key="basic.wechat" placeholder="如：zhangsan_2020">
+            <div class="field-actions">
+              <button class="field-btn btn-copy" data-ref="basic.wechat" title="复制"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+              <button class="field-btn btn-fill-field" data-ref="basic.wechat" title="填充到当前焦点输入框"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">现居地</label>
+        <div class="form-input-wrapper">
+          <input type="text" class="form-control" data-key="basic.residence" placeholder="现居城市 + 详细地址，如：北京市海淀区中关村大街1号">
+          <div class="field-actions">
+            <button class="field-btn btn-copy" data-ref="basic.residence" title="复制"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+            <button class="field-btn btn-fill-field" data-ref="basic.residence" title="填充到当前焦点输入框"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">个人网站</label>
+        <div class="form-input-wrapper">
+          <input type="text" class="form-control" data-key="basic.website" placeholder="如：https://yourdomain.com">
+          <div class="field-actions">
+            <button class="field-btn btn-copy" data-ref="basic.website" title="复制"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+            <button class="field-btn btn-fill-field" data-ref="basic.website" title="填充到当前焦点输入框"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">GitHub</label>
+        <div class="form-input-wrapper">
+          <input type="text" class="form-control" data-key="basic.github" placeholder="如：https://github.com/username">
+          <div class="field-actions">
+            <button class="field-btn btn-copy" data-ref="basic.github" title="复制"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+            <button class="field-btn btn-fill-field" data-ref="basic.github" title="填充到当前焦点输入框"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">自我评价</label>
+        <div class="form-input-wrapper">
+          <textarea class="form-control" data-key="basic.selfEval" placeholder="自我介绍/个人评价，适合填在简短的自我评价框中..."></textarea>
+          <div class="field-actions" style="top: 8px;">
+            <button class="field-btn btn-ai-modify" data-ref="basic.selfEval" title="AI 优化本项"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/></svg></button>
+            <button class="field-btn btn-copy" data-ref="basic.selfEval"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+            <button class="field-btn btn-fill-field" data-ref="basic.selfEval"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">自我描述</label>
+        <div class="form-input-wrapper">
+          <textarea class="form-control" data-key="basic.selfDescription" placeholder="自我描述、性格特质、工作风格与个人亮点..."></textarea>
+          <div class="field-actions" style="top: 8px;">
+            <button class="field-btn btn-ai-modify" data-ref="basic.selfDescription" title="AI 优化本项"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/></svg></button>
+            <button class="field-btn btn-copy" data-ref="basic.selfDescription"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+            <button class="field-btn btn-fill-field" data-ref="basic.selfDescription"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></button>
+          </div>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="form-group">
+          <label class="form-label">最高学历</label>
+          <div class="form-input-wrapper">
+            <input type="text" class="form-control" data-key="basic.highestDegree" placeholder="如：硕士">
+            <div class="field-actions">
+              <button class="field-btn btn-copy" data-ref="basic.highestDegree" title="复制"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+              <button class="field-btn btn-fill-field" data-ref="basic.highestDegree" title="填充到当前焦点输入框"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></button>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">当前所在国家</label>
+          <div class="form-input-wrapper">
+            <input type="text" class="form-control" data-key="basic.country" placeholder="如：中国">
+            <div class="field-actions">
+              <button class="field-btn btn-copy" data-ref="basic.country" title="复制"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+              <button class="field-btn btn-fill-field" data-ref="basic.country" title="填充到当前焦点输入框"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">是否接受城市调剂</label>
+        <div class="form-input-wrapper">
+          <input type="text" class="form-control" data-key="basic.acceptRelocation" placeholder="是 / 否">
+          <div class="field-actions">
+            <button class="field-btn btn-copy" data-ref="basic.acceptRelocation" title="复制"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+            <button class="field-btn btn-fill-field" data-ref="basic.acceptRelocation" title="填充到当前焦点输入框"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></button>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin: 14px 0 8px 0; border-top: 1px dashed var(--border-color); padding-top: 10px;">
+        <span style="font-size: 12px; font-weight: 600; color: var(--text-secondary);">紧急联系人信息（选填）</span>
+      </div>
+      <div class="grid-2">
+        <div class="form-group">
+          <label class="form-label">紧急联系人姓名</label>
+          <div class="form-input-wrapper">
+            <input type="text" class="form-control" data-key="basic.emergencyContact" placeholder="如：张某某">
+            <div class="field-actions">
+              <button class="field-btn btn-copy" data-ref="basic.emergencyContact" title="复制"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+              <button class="field-btn btn-fill-field" data-ref="basic.emergencyContact" title="填充到当前焦点输入框"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></button>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">与本人关系</label>
+          <div class="form-input-wrapper">
+            <input type="text" class="form-control" data-key="basic.emergencyRelation" placeholder="如：父亲/母亲/朋友">
+            <div class="field-actions">
+              <button class="field-btn btn-copy" data-ref="basic.emergencyRelation" title="复制"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+              <button class="field-btn btn-fill-field" data-ref="basic.emergencyRelation" title="填充到当前焦点输入框"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">紧急联系人电话</label>
+        <div class="form-input-wrapper">
+          <input type="text" class="form-control" data-key="basic.emergencyPhone" placeholder="如：13900000000">
+          <div class="field-actions">
+            <button class="field-btn btn-copy" data-ref="basic.emergencyPhone" title="复制"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+            <button class="field-btn btn-fill-field" data-ref="basic.emergencyPhone" title="填充到当前焦点输入框"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">补充说明</label>
+        <div class="form-input-wrapper">
+          <textarea class="form-control" data-key="basic.extraInfo" placeholder="补充说明、其他需要特别向 HR 声明的事项..."></textarea>
+          <div class="field-actions" style="top: 8px;">
+            <button class="field-btn btn-ai-modify" data-ref="basic.extraInfo" title="AI 优化本项"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/></svg></button>
+            <button class="field-btn btn-copy" data-ref="basic.extraInfo"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+            <button class="field-btn btn-fill-field" data-ref="basic.extraInfo"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 2: Education -->
+    <div class="tab-panel" id="tab-education">
+      <div id="education-list" class="card-list">
+        <!-- Education cards will be injected here dynamically -->
+      </div>
+      <button class="btn btn-secondary btn-full" id="btn-add-education">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        新增教育经历
+      </button>
+    </div>
+
+    <!-- Tab 3: Internship -->
+    <div class="tab-panel" id="tab-internship">
+      <div id="internship-list" class="card-list">
+        <!-- Internship cards will be injected here dynamically -->
+      </div>
+      <button class="btn btn-secondary btn-full" id="btn-add-internship">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        新增工作实习经历
+      </button>
+    </div>
+
+    <!-- Tab 4: Project -->
+    <div class="tab-panel" id="tab-project">
+      <div id="project-list" class="card-list">
+        <!-- Project cards will be injected here dynamically -->
+      </div>
+      <button class="btn btn-secondary btn-full" id="btn-add-project">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        新增项目经历
+      </button>
+    </div>
+
+    <!-- Tab 5: Skills & Awards -->
+    <div class="tab-panel" id="tab-skills">
+      <div class="form-group">
+        <label class="form-label">专业技能</label>
+        <div class="form-input-wrapper">
+          <textarea class="form-control" data-key="skills" placeholder="例如：精通 JS/HTML/CSS，熟练使用 React/Vue，熟悉 Node.js 编程，掌握 Git，通过 CET-6 英语等级测试..."></textarea>
+          <div class="field-actions" style="top: 8px;">
+            <button class="field-btn btn-ai-modify" data-ref="skills" title="AI 优化本项"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/></svg></button>
+            <button class="field-btn btn-copy" data-ref="skills"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+            <button class="field-btn btn-fill-field" data-ref="skills"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">语言能力</label>
+        <div class="form-input-wrapper">
+          <textarea class="form-control" data-key="languages" placeholder="例如：大学英语六级 (CET-6) 520分；普通话二级甲等；日语 N2..."></textarea>
+          <div class="field-actions" style="top: 8px;">
+            <button class="field-btn btn-ai-modify" data-ref="languages" title="AI 优化本项"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/></svg></button>
+            <button class="field-btn btn-copy" data-ref="languages"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+            <button class="field-btn btn-fill-field" data-ref="languages"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></button>
+          </div>
+        </div>
+      </div>
+      <div style="border-top: 1px solid var(--border-color); margin-top: 8px; padding-top: 16px;">
+        <h4 style="font-size: 13px; font-weight: 600; margin-bottom: 12px; color: var(--text-main);">荣誉奖项</h4>
+        <div id="honors-list" class="card-list" style="margin-bottom: 12px;">
+          <!-- Honor cards will be injected here dynamically -->
+        </div>
+        <button class="btn btn-secondary btn-full" id="btn-add-honor">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          新增荣誉奖项
+        </button>
+      </div>
+    </div>
+
+
+
+    <!-- Tab 6: Publication & Competition -->
+    <div class="tab-panel" id="tab-pub-comp">
+      <!-- 赛事经验 -->
+      <div>
+        <h4 style="font-size: 13px; font-weight: 600; margin-bottom: 12px; color: var(--text-main);">赛事经验</h4>
+        <div id="competition-list" class="card-list" style="margin-bottom: 12px;">
+          <!-- Competition cards will be injected here dynamically -->
+        </div>
+        <button class="btn btn-secondary btn-full" id="btn-add-competition" style="margin-bottom: 20px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          新增赛事经验
+        </button>
+      </div>
+
+      <!-- 论文/期刊 -->
+      <div style="border-top: 1px solid var(--border-color); margin-top: 10px; padding-top: 16px;">
+        <h4 style="font-size: 13px; font-weight: 600; margin-bottom: 12px; color: var(--text-main);">论文/期刊/专利</h4>
+        <div id="paper-list" class="card-list" style="margin-bottom: 12px;">
+          <!-- Paper cards will be injected here dynamically -->
+        </div>
+        <button class="btn btn-secondary btn-full" id="btn-add-paper">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          新增论文/期刊/专利
+        </button>
+      </div>
+    </div>
+
+    <!-- Tab 6: AI Helper -->
+    <div class="tab-panel" id="tab-ai">
+      <!-- API Settings Card -->
+      <div class="card" style="border-color: var(--primary-color);">
+        <div class="card-header">
+          <span class="card-title" style="color: var(--primary-color);">⚙️ API 接口配置</span>
+        </div>
+        <div class="card-body">
+          <div class="form-group">
+            <label class="form-label">API 协议</label>
+            <select class="form-control" id="ai-protocol">
+              <option value="openai">OpenAI 兼容协议 (例如：OpenAI, DeepSeek, OpenRouter, Local)</option>
+              <option value="claude">Claude 原生协议</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">API 接口地址 (Base URL)</label>
+            <input type="text" class="form-control" id="ai-base-url" placeholder="如：https://api.openai.com/v1">
+          </div>
+          <div class="form-group">
+            <label class="form-label">API 密钥 (API Key)</label>
+            <input type="password" class="form-control" id="ai-api-key" placeholder="输入你的 API Key">
+          </div>
+          <div class="form-group">
+            <label class="form-label">大模型名称 (Model Name)</label>
+            <input type="text" class="form-control" id="ai-model" placeholder="如：gpt-4o-mini 或 deepseek-chat">
+          </div>
+          <button class="btn btn-primary btn-sm btn-full" id="btn-save-api-config">保存接口配置</button>
+        </div>
+      </div>
+
+      <!-- Resume Optimization Card -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">📝 岗位 JD 简历对齐优化</span>
+        </div>
+        <div class="card-body">
+          <div class="form-group">
+            <label class="form-label">目标岗位 JD (Paste Job Description)</label>
+            <textarea class="form-control" id="ai-jd-input" placeholder="粘贴你想投递的岗位职责、技能要求描述..."></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">优化要求 (自定义指令)</label>
+            <textarea class="form-control" id="ai-custom-prompt" placeholder="例如：请结合此 JD，修改并优化我的【自我评价】和【专业技能】，突出我在 AI Agent / 大模型编排框架方面的落地经验，用专业动词描述。"></textarea>
+          </div>
+          <button class="btn btn-primary btn-full" id="btn-ai-optimize-resume">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/></svg>
+            一键智能对齐优化
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast">操作成功</div>
+
+  <!-- Load script -->
+  <script src="sidepanel.js"></script>
+</body>
+</html>
