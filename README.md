@@ -6,6 +6,7 @@
   <img src="https://img.shields.io/badge/Release-v1.0.0-indigo?style=flat-square" alt="Release" />
   <img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" alt="License" />
   <img src="https://img.shields.io/badge/Data%20Privacy-100%25%20Local-success?style=flat-square" alt="Local Privacy" />
+  <a href="https://linux.do/"><img src="https://img.shields.io/badge/LINUX%20DO-Community-blueviolet?style=flat-square" alt="LINUX DO" /></a>
 </p>
 
 > **求职/校招/社招网申便携神器** —— 告别机械重复的手工切换与复制粘贴！
@@ -129,3 +130,11 @@ resume-filler-extension/
 ## 📄 开源许可证
 
 本项目基于 [MIT License](LICENSE) 开源，欢迎自由使用、分发与二次开发！
+
+---
+
+## 🌐 社区认可 / Acknowledgement
+
+> 本开源项目已链接认可 [LINUX DO](https://linux.do/) 社区。  
+> 感谢 LINUX DO 社区技术交流与开源探索精神的支持与启发！
+
