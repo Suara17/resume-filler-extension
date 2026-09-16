@@ -106,7 +106,7 @@
 
       <!-- 表单字段 3：现居城市 (正在聚焦的高亮输入框) -->
       <g transform="translate(0, 140)">
-        <text x="0" y="0" font-size="12" fill="#4f46e5" class="font-sans" font-weight="700">现居城市 / 期望工作地点 *</text>
+        <text x="0" y="0" font-size="12" fill="#4f46e5" class="font-sans" font-weight="700">现居城市 / 期望工作地点 * (光标焦点输入框)</text>
         <rect x="0" y="8" width="520" height="36" rx="6" fill="#ffffff" stroke="#6366f1" stroke-width="2" />
         <text x="12" y="31" font-size="13" fill="#0f172a" class="font-sans">北京市海淀区</text>
         <!-- 光标 -->
@@ -158,7 +158,7 @@
       <!-- 底部辅助说明文字 -->
       <g transform="translate(0, 365)">
         <rect width="520" height="32" rx="6" fill="#e0e7ff" opacity="0.6" />
-        <text x="12" y="21" font-size="12" fill="#3730a3" class="font-sans" font-weight="500">💡 提示：输入框获得焦点时自动浮现跟手气泡，支持快捷填入与独立复制</text>
+        <text x="12" y="21" font-size="12" fill="#3730a3" class="font-sans" font-weight="500">💡 提示：既可在气泡中点击填入，也可以直接点击右侧卡片里的任意选项原地填入！</text>
       </g>
     </g>
 
@@ -169,108 +169,71 @@
 
       <!-- 卡片顶部 Header（精致蓝紫） -->
       <path d="M 0,10 Q 0,0 10,0 L 295,0 Q 305,0 305,10 L 305,44 L 0,44 Z" fill="url(#primaryGrad)" />
-      <text x="14" y="27" font-size="13.5" fill="#ffffff" class="font-sans" font-weight="700">⚡ 简历助手 · 便携跟手面板</text>
+      <text x="14" y="27" font-size="13" fill="#ffffff" class="font-sans" font-weight="700">⚡ 简历助手 · 便携悬浮面板</text>
       <text x="270" y="26" font-size="14" fill="#ffffff" opacity="0.8" class="font-sans">✕</text>
 
+      <!-- 模式提示状态栏 (真实插件交互说明) -->
+      <rect x="12" y="50" width="281" height="24" rx="4" fill="#eef2ff" />
+      <text x="18" y="66" font-size="11" fill="#4338ca" class="font-sans" font-weight="600">💡 点击选项直接填入网页，点击标签复制</text>
+
       <!-- 卡片快捷标签切换 (Tabs) -->
-      <rect x="12" y="54" width="281" height="28" rx="6" fill="#f1f5f9" />
-      <rect x="14" y="56" width="65" height="24" rx="5" fill="#ffffff" />
-      <text x="26" y="72" font-size="11.5" fill="#4f46e5" class="font-sans" font-weight="700">基础信息</text>
-      <text x="96" y="72" font-size="11.5" fill="#64748b" class="font-sans">教育背景</text>
-      <text x="162" y="72" font-size="11.5" fill="#64748b" class="font-sans">实习履历</text>
-      <text x="230" y="72" font-size="11.5" fill="#64748b" class="font-sans">项目经历</text>
+      <rect x="12" y="80" width="281" height="26" rx="6" fill="#f1f5f9" />
+      <rect x="14" y="82" width="65" height="22" rx="5" fill="#ffffff" />
+      <text x="26" y="97" font-size="11" fill="#4f46e5" class="font-sans" font-weight="700">基础信息</text>
+      <text x="96" y="97" font-size="11" fill="#64748b" class="font-sans">教育背景</text>
+      <text x="162" y="97" font-size="11" fill="#64748b" class="font-sans">实习履历</text>
+      <text x="230" y="97" font-size="11" fill="#64748b" class="font-sans">项目经历</text>
 
-      <!-- 快捷字段列表（展示便捷、一键复制、一键填入按钮） -->
-      <!-- 列表行 1：姓名 -->
-      <g transform="translate(12, 92)">
-        <rect width="281" height="42" rx="6" fill="#f8fafc" stroke="#f1f5f9" />
-        <text x="10" y="18" font-size="11" fill="#94a3b8" class="font-sans">姓名</text>
-        <text x="10" y="33" font-size="12.5" fill="#1e293b" class="font-sans" font-weight="600">张三</text>
+      <!-- 真实插件选项列表：上为可复制标签，下为可点击填入的选项框 -->
+
+      <!-- 选项 1：姓名 -->
+      <g transform="translate(12, 114)">
+        <text x="0" y="10" font-size="11" fill="#64748b" class="font-sans" font-weight="600">姓名 <tspan fill="#4f46e5">📋</tspan></text>
+        <rect x="0" y="15" width="281" height="30" rx="5" fill="#f8fafc" stroke="#e2e8f0" />
+        <text x="10" y="35" font-size="12" fill="#1e293b" class="font-sans">张三</text>
+      </g>
+
+      <!-- 选项 2：手机号码 -->
+      <g transform="translate(12, 166)">
+        <text x="0" y="10" font-size="11" fill="#64748b" class="font-sans" font-weight="600">手机号码 <tspan fill="#4f46e5">📋</tspan></text>
+        <rect x="0" y="15" width="281" height="30" rx="5" fill="#f8fafc" stroke="#e2e8f0" />
+        <text x="10" y="35" font-size="12" fill="#1e293b" class="mono">13800138000</text>
+      </g>
+
+      <!-- 选项 3：现居城市 (正在被点击直接填入的高亮选项) -->
+      <g transform="translate(12, 218)">
+        <text x="0" y="10" font-size="11" fill="#4338ca" class="font-sans" font-weight="700">现居城市 <tspan fill="#4f46e5">📋</tspan> · <tspan fill="#059669">⚡ 正在填入网页...</tspan></text>
+        <rect x="0" y="15" width="281" height="32" rx="6" fill="#e0e7ff" stroke="#6366f1" stroke-width="1.8" />
+        <text x="10" y="36" font-size="12.5" fill="#1e1b4b" class="font-sans" font-weight="700">北京市海淀区</text>
         
-        <!-- 一键复制按钮 -->
-        <g transform="translate(180, 9)">
-          <rect width="44" height="24" rx="4" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="0.8" />
-          <text x="6" y="16" font-size="11" fill="#475569" class="font-sans">📋复制</text>
-        </g>
-        <!-- 一键填入按钮 -->
-        <g transform="translate(230, 9)">
-          <rect width="44" height="24" rx="4" fill="#e0e7ff" stroke="#c7d2fe" stroke-width="0.8" />
-          <text x="6" y="16" font-size="11" fill="#4f46e5" class="font-sans" font-weight="600">⚡填入</text>
+        <!-- 点击手势指示 -->
+        <g transform="translate(240, 18)">
+          <circle cx="12" cy="12" r="14" fill="#6366f1" opacity="0.2">
+            <animate attributeName="r" values="10;18;10" dur="1.5s" repeatCount="indefinite" />
+          </circle>
+          <text x="4" y="17" font-size="16">👆</text>
         </g>
       </g>
 
-      <!-- 列表行 2：手机号码 -->
-      <g transform="translate(12, 142)">
-        <rect width="281" height="42" rx="6" fill="#f8fafc" stroke="#f1f5f9" />
-        <text x="10" y="18" font-size="11" fill="#94a3b8" class="font-sans">手机</text>
-        <text x="10" y="33" font-size="12" fill="#1e293b" class="mono">13800138000</text>
-        <g transform="translate(180, 9)">
-          <rect width="44" height="24" rx="4" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="0.8" />
-          <text x="6" y="16" font-size="11" fill="#475569" class="font-sans">📋复制</text>
-        </g>
-        <g transform="translate(230, 9)">
-          <rect width="44" height="24" rx="4" fill="#e0e7ff" stroke="#c7d2fe" stroke-width="0.8" />
-          <text x="6" y="16" font-size="11" fill="#4f46e5" class="font-sans" font-weight="600">⚡填入</text>
-        </g>
+      <!-- 选项 4：求职意向 -->
+      <g transform="translate(12, 276)">
+        <text x="0" y="10" font-size="11" fill="#64748b" class="font-sans" font-weight="600">求职意向 <tspan fill="#4f46e5">📋</tspan></text>
+        <rect x="0" y="15" width="281" height="30" rx="5" fill="#f8fafc" stroke="#e2e8f0" />
+        <text x="10" y="35" font-size="12" fill="#1e293b" class="font-sans">AI应用开发 / 全栈工程师</text>
       </g>
 
-      <!-- 列表行 3：邮箱 -->
-      <g transform="translate(12, 192)">
-        <rect width="281" height="42" rx="6" fill="#f8fafc" stroke="#f1f5f9" />
-        <text x="10" y="18" font-size="11" fill="#94a3b8" class="font-sans">邮箱</text>
-        <text x="10" y="33" font-size="12" fill="#1e293b" class="mono">zhangsan@example.com</text>
-        <g transform="translate(180, 9)">
-          <rect width="44" height="24" rx="4" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="0.8" />
-          <text x="6" y="16" font-size="11" fill="#475569" class="font-sans">📋复制</text>
-        </g>
-        <g transform="translate(230, 9)">
-          <rect width="44" height="24" rx="4" fill="#e0e7ff" stroke="#c7d2fe" stroke-width="0.8" />
-          <text x="6" y="16" font-size="11" fill="#4f46e5" class="font-sans" font-weight="600">⚡填入</text>
-        </g>
-      </g>
-
-      <!-- 列表行 4：求职意向 -->
-      <g transform="translate(12, 242)">
-        <rect width="281" height="42" rx="6" fill="#f8fafc" stroke="#f1f5f9" />
-        <text x="10" y="18" font-size="11" fill="#94a3b8" class="font-sans">意向岗位</text>
-        <text x="10" y="33" font-size="12.5" fill="#1e293b" class="font-sans" font-weight="600">AI应用 / 全栈开发</text>
-        <g transform="translate(180, 9)">
-          <rect width="44" height="24" rx="4" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="0.8" />
-          <text x="6" y="16" font-size="11" fill="#475569" class="font-sans">📋复制</text>
-        </g>
-        <g transform="translate(230, 9)">
-          <rect width="44" height="24" rx="4" fill="#e0e7ff" stroke="#c7d2fe" stroke-width="0.8" />
-          <text x="6" y="16" font-size="11" fill="#4f46e5" class="font-sans" font-weight="600">⚡填入</text>
-        </g>
-      </g>
-
-      <!-- 列表行 5：现居地址 (高亮跟随状态) -->
-      <g transform="translate(12, 292)">
-        <rect width="281" height="42" rx="6" fill="#eef2ff" stroke="#818cf8" stroke-width="1.2" />
-        <text x="10" y="18" font-size="11" fill="#6366f1" class="font-sans" font-weight="600">现居地 · 焦点联动中</text>
-        <text x="10" y="33" font-size="12.5" fill="#312e81" class="font-sans" font-weight="700">北京市海淀区</text>
-        <g transform="translate(180, 9)">
-          <rect width="44" height="24" rx="4" fill="#ffffff" stroke="#c7d2fe" stroke-width="0.8" />
-          <text x="6" y="16" font-size="11" fill="#475569" class="font-sans">📋复制</text>
-        </g>
-        <g transform="translate(230, 9)">
-          <rect width="44" height="24" rx="4" fill="#4f46e5" />
-          <text x="6" y="16" font-size="11" fill="#ffffff" class="font-sans" font-weight="700">⚡填入</text>
-        </g>
-      </g>
-
-      <!-- 卡片底部分段快速取用栏 -->
-      <g transform="translate(12, 348)">
-        <rect width="281" height="92" rx="6" fill="#f8fafc" stroke="#e2e8f0" stroke-dasharray="3 3" />
-        <text x="12" y="20" font-size="11.5" fill="#475569" class="font-sans" font-weight="600">📂 多段经历速选提取</text>
+      <!-- 分段经历速选提取区 -->
+      <g transform="translate(12, 336)">
+        <rect width="281" height="102" rx="6" fill="#f8fafc" stroke="#e2e8f0" stroke-dasharray="3 3" />
+        <text x="10" y="18" font-size="11" fill="#475569" class="font-sans" font-weight="700">📂 多段经历选项（点击任意项直接填入）</text>
         
-        <rect x="12" y="30" width="257" height="26" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.8" />
-        <text x="20" y="47" font-size="11.5" fill="#334155" class="font-sans">🎓 示例科技大学 (硕士 · 2026)</text>
-        <text x="240" y="47" font-size="11" fill="#4f46e5" class="font-sans" font-weight="bold">提取 ›</text>
+        <rect x="10" y="28" width="261" height="28" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.8" />
+        <text x="18" y="46" font-size="11" fill="#334155" class="font-sans">🎓 示例科技大学 · 硕士 · 计算机</text>
+        <text x="236" y="46" font-size="11" fill="#4f46e5" font-weight="bold">填入 ›</text>
 
-        <rect x="12" y="60" width="257" height="26" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.8" />
-        <text x="20" y="77" font-size="11.5" fill="#334155" class="font-sans">💼 科技创新公司 (全栈实习生)</text>
-        <text x="240" y="77" font-size="11" fill="#4f46e5" class="font-sans" font-weight="bold">提取 ›</text>
+        <rect x="10" y="62" width="261" height="28" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.8" />
+        <text x="18" y="80" font-size="11" fill="#334155" class="font-sans">💼 科技创新公司 · 全栈实习生</text>
+        <text x="236" y="80" font-size="11" fill="#4f46e5" font-weight="bold">填入 ›</text>
       </g>
     </g>
   </g>
@@ -283,6 +246,6 @@
 
   <g transform="translate(680, 20)" filter="url(#glowBadge)">
     <rect width="250" height="28" rx="14" fill="#059669" />
-    <text x="14" y="19" font-size="12.5" fill="#ffffff" class="font-sans" font-weight="600">⚡ 一键复制 / 填入：单项直达 便捷跟手</text>
+    <text x="14" y="19" font-size="12.5" fill="#ffffff" class="font-sans" font-weight="600">🎯 单击选项直接填入：指哪填哪 便捷跟手</text>
   </g>
 </svg>
