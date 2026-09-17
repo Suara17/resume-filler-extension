@@ -366,11 +366,13 @@ const STRONG_INDICATORS = [
   { section: 'project', subKey: 'result', keywords: ['项目成果', '项目业绩', '量化成果', '项目收益', 'project result', 'project results', 'project achievement', 'proj_result'] },
   { section: 'project', subKey: 'tech', keywords: ['项目技术', '项目技术栈', 'project tech', 'project technology', 'proj_tech'] },
 
-  // 5. 基础信息专项拆分与强指示词
+  // 5. 基础信息专项拆分与强指示词 (高特异性字段排在最前面，防止被通用姓名截胡)
+  { section: 'basic', subKey: 'email', keywords: ['电子邮箱', '电子信箱', '联系邮箱', '个人邮箱', '常用邮箱', '我的邮箱', '邮箱地址', '邮箱', 'email', 'e-mail', 'mail address', 'mail'] },
+  { section: 'basic', subKey: 'phone', keywords: ['手机号码', '联系电话', '手机号', '移动电话', '电话号码', '常用手机', '手机', 'phone', 'mobile', 'tel'] },
   { section: 'basic', subKey: 'lastName', keywords: ['姓氏', '姓', 'lastname', 'last name', 'family name', 'surname'] },
   { section: 'basic', subKey: 'firstName', keywords: ['名字', '名', 'firstname', 'first name', 'given name'] },
-  { section: 'basic', subKey: 'name', keywords: ['真实姓名', '您的姓名', '中文姓名', '本人姓名', 'candidate name', 'applicant name', '姓名'] },
   { section: 'basic', subKey: 'idCard', keywords: ['身份证号码', '身份证号', '证件号码', '证件号', '身份证件号', '身份证', '公民身份证', '公民身份号码', 'id card', 'idcard', 'id number', 'identity card'] },
+  { section: 'basic', subKey: 'name', keywords: ['真实姓名', '您的姓名', '中文姓名', '本人姓名', 'candidate name', 'applicant name', '姓名'] },
   { section: 'basic', subKey: 'height', keywords: ['身高', 'height', '身 高', '身长'] },
   { section: 'basic', subKey: 'weight', keywords: ['体重', 'weight', '体 重'] },
   { section: 'basic', subKey: 'ethnicity', keywords: ['民族', 'ethnicity', 'nationality', '民 族', '所属民族', '名族'] },
@@ -390,7 +392,13 @@ const STRONG_INDICATORS = [
 
 // 基础信息匹配排除词 (防止全局匹配错乱)
 const EXCLUSIONS = {
-  name: ['项目', '公司', '大学', '学校', '学院', '紧急', '联系人', '推荐', '家长', '老师', '导师', '单位', '奖', '荣誉', '亲属', '成员', '证明人', '推荐人', '姓氏', 'last name', 'lastname', 'family name', 'surname', 'first name', 'firstname'],
+  name: [
+    '项目', '公司', '大学', '学校', '学院', '紧急', '联系人', '推荐', '家长', '老师', '导师', '单位', '奖', '荣誉', '亲属', '成员', '证明人', '推荐人',
+    '姓氏', 'last name', 'lastname', 'family name', 'surname', 'first name', 'firstname',
+    '邮箱', '邮件', '电子邮箱', 'email', 'e-mail', 'mail',
+    '手机', '电话', '联系电话', '手机号', 'phone', 'mobile', 'tel',
+    '身份证', '证件号', 'idcard', '微信号', 'wechat', '微信', '籍贯', '地址', '专业', '学历'
+  ],
   lastName: ['姓名', '全名', 'real name', 'username', '真实姓名', '项目', '公司', '学校', '学院', '院校', '名称'],
   firstName: ['姓名', '全名', 'real name', 'username', '真实姓名', '项目', '公司', '学校', '学院', '院校', '签名', '域名', '名次', '名称'],
   phone: ['紧急', '联系人', '推荐', '家长', '老师', '导师', '公司', '单位', '亲属', '成员', '学校', '大学', '证明人', '推荐人', '父亲', '母亲', '父母', '家属'],
@@ -1712,7 +1720,51 @@ function detectFieldForElement(el, resumeData) {
     const clues = getElementClues(el);
     if (!clues || clues.length === 0) return null;
 
-  // 0. 专门探测就读时间年-月输入框/下拉框 (支持输入框/下拉框叫“年”、“月”、“就读时间”等全形态)
+    // 0. 输入框自身高特异性类型与属性强判定 (最高优先级，严禁被祖先容器的"姓名"等词汇截胡)
+    const elType = (el.type || "").toLowerCase();
+    const elName = (el.name || "").toLowerCase();
+    const elId = (el.id || "").toLowerCase();
+    const elPlaceholder = (el.placeholder || "").toLowerCase();
+
+    // 邮箱直接锁定 (全面适配 Moka / Beisen / 各类招聘系统)
+    const isEmailClue = elType === "email" ||
+      /email|e-mail|mail/i.test(elName) ||
+      /email|e-mail|mail/i.test(elId) ||
+      /邮箱|email|e-mail|mail/i.test(elPlaceholder) ||
+      clues.some(c => /^(?:电子)?邮箱(?:地址)?$|^email$/i.test(c.trim()));
+
+    if (isEmailClue && !clues.some(c => /紧急|父母|家属|亲属|证明人|推荐人/i.test(c))) {
+      return {
+        section: "basic",
+        subKey: "email",
+        fieldKey: "basic.email",
+        label: FIELD_LABEL_MAP.email || "电子邮箱",
+        value: resumeData.basic.email || "",
+        clues,
+        suggestions: []
+      };
+    }
+
+    // 手机电话直接锁定
+    const isPhoneClue = elType === "tel" ||
+      /(?:^|[_.-])(?:mobile|phone|tel)(?:[_.-]|$)/i.test(elName) ||
+      /(?:^|[_.-])(?:mobile|phone|tel)(?:[_.-]|$)/i.test(elId) ||
+      /(?:手机|电话|手机号|手机号码|联系电话|移动电话)/i.test(elPlaceholder) ||
+      clues.some(c => /^(?:手机号?码?|联系电话|移动电话)$/i.test(c.trim()));
+
+    if (isPhoneClue && !clues.some(c => /紧急|父母|家属|亲属|证明人|推荐人/i.test(c))) {
+      return {
+        section: "basic",
+        subKey: "phone",
+        fieldKey: "basic.phone",
+        label: FIELD_LABEL_MAP.phone || "手机号码",
+        value: resumeData.basic.phone || "",
+        clues,
+        suggestions: []
+      };
+    }
+
+  // 0.1 专门探测就读时间年-月输入框/下拉框 (支持输入框/下拉框叫“年”、“月”、“就读时间”等全形态)
   let eduDateRole = null;
   if (el.tagName === "SELECT") {
     const sType = inspectSelectType(el);
