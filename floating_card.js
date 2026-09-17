@@ -52,29 +52,30 @@
   let resumeData = JSON.parse(JSON.stringify(defaultResumeData));
   let resumesList = [];
   let activeResumeId = "default";
-  let isCardCollapsed = localStorage.getItem("rf_card_collapsed") === "true";
-  let isPageEnabled = false; // 当前页面是否激活悬浮卡片与气泡
+  let isCardCollapsed = localStorage.getItem("rf_card_collapsed") !== "false"; // 默认折叠为悬浮小球
+  let isRecruitmentPage = false; // 当前页面是否属于网申/招聘表单
+  let isPillEnabled = false; // 是否自动弹出输入框智能气泡
+  let isBlacklisted = false; // 是否被黑名单彻底隐藏
 
   // 获取当前网站主机名
   const currentHostname = window.location.hostname || "local";
 
   // 检查当前页面是否属于网申/招聘相关页面或用户配置的允许域名
   async function checkPageActivation() {
-    // 1. 本地测试页面始终启用
+    // 1. 本地测试页面始终启用气泡与小球
     if (window.location.protocol === "file:" || window.location.href.includes("test_page.html")) {
-      return { enabled: true, reason: "local_test" };
+      return { isRecruitment: true, pillEnabled: true, isBlacklisted: false };
     }
 
     try {
       // 2. 从本地存储读取用户自定义的黑白名单
       const storageData = await new Promise((resolve) => {
         if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local) {
-          chrome.storage.local.get(["rf_whitelist_domains", "rf_blacklist_domains", "rf_auto_detect_mode"], resolve);
+          chrome.storage.local.get(["rf_whitelist_domains", "rf_blacklist_domains"], resolve);
         } else {
           resolve({
             rf_whitelist_domains: JSON.parse(localStorage.getItem("rf_whitelist_domains") || "[]"),
-            rf_blacklist_domains: JSON.parse(localStorage.getItem("rf_blacklist_domains") || "[]"),
-            rf_auto_detect_mode: localStorage.getItem("rf_auto_detect_mode") || "smart"
+            rf_blacklist_domains: JSON.parse(localStorage.getItem("rf_blacklist_domains") || "[]")
           });
         }
       });
@@ -82,14 +83,14 @@
       const whitelist = storageData.rf_whitelist_domains || [];
       const blacklist = storageData.rf_blacklist_domains || [];
 
-      // 用户黑名单优先
+      // 用户黑名单优先：彻底隐藏小球与气泡
       if (blacklist.some(domain => currentHostname === domain || currentHostname.endsWith("." + domain))) {
-        return { enabled: false, reason: "user_blacklisted" };
+        return { isRecruitment: false, pillEnabled: false, isBlacklisted: true };
       }
 
-      // 用户白名单
+      // 用户白名单：始终弹气泡与小球
       if (whitelist.some(domain => currentHostname === domain || currentHostname.endsWith("." + domain))) {
-        return { enabled: true, reason: "user_whitelisted" };
+        return { isRecruitment: true, pillEnabled: true, isBlacklisted: false };
       }
 
       // 3. 智能检测网申与招聘系统特征 (Smart Detection)
@@ -105,7 +106,7 @@
       // URL 关键词命中
       const urlMatched = recruitmentKeywords.some(kw => href.includes(kw));
       if (urlMatched) {
-        return { enabled: true, reason: "url_matched" };
+        return { isRecruitment: true, pillEnabled: true, isBlacklisted: false };
       }
 
       // 页面 DOM 内容特征命中 (页面包含多个网申/简历关键短语)
@@ -125,12 +126,13 @@
       }
 
       if (matchCount >= 2) {
-        return { enabled: true, reason: "dom_content_matched" };
+        return { isRecruitment: true, pillEnabled: true, isBlacklisted: false };
       }
 
-      return { enabled: false, reason: "not_recruitment_page" };
+      // 普通非网申页面：小球正常驻留可点击（方便随时唤起），但不自动弹出气泡干扰日常打字
+      return { isRecruitment: false, pillEnabled: false, isBlacklisted: false };
     } catch (e) {
-      return { enabled: false, reason: "check_error" };
+      return { isRecruitment: false, pillEnabled: false, isBlacklisted: false };
     }
   }
 
@@ -1940,8 +1942,8 @@
 
   function showPillForInput(inputEl) {
     if (!inputEl) return;
-    // 仅在当前页面已激活（网申相关页面或用户设置允许）时才弹出智能气泡
-    if (!isPageEnabled) return;
+    // 仅在当前页面启用了智能气泡推荐（网申页面或用户白名单）时弹出，日常普通页面不打扰
+    if (!isPillEnabled) return;
     const target = resolveTargetControl(inputEl) || inputEl;
 
     let match = null;
@@ -2127,11 +2129,8 @@
     }
 
     function toggleCard(expand, mousePos) {
-      if (!isPageEnabled) {
-        isPageEnabled = true;
+      if (isBlacklisted) {
         triggerBtn.classList.remove("rf-hidden");
-        showToast("🌐 已在当前页面手动启用简历助手");
-        updateSiteMenuUI();
       }
       const willExpand = expand !== undefined ? expand : cardModal.classList.contains("rf-hidden");
       if (willExpand) {
@@ -2809,19 +2808,19 @@
       if (blacklist.some(d => currentHostname === d || currentHostname.endsWith("." + d))) {
         if (optSiteNever) optSiteNever.classList.add("active");
         if (siteStatusBadge) {
-          siteStatusBadge.textContent = "🚫已禁用";
+          siteStatusBadge.textContent = "🚫已隐藏小球";
           siteStatusBadge.style.color = "var(--danger)";
         }
       } else if (whitelist.some(d => currentHostname === d || currentHostname.endsWith("." + d))) {
         if (optSiteAlways) optSiteAlways.classList.add("active");
         if (siteStatusBadge) {
-          siteStatusBadge.textContent = "✅始终弹出";
+          siteStatusBadge.textContent = "✅始终弹气泡";
           siteStatusBadge.style.color = "#059669";
         }
       } else {
         if (optSiteAuto) optSiteAuto.classList.add("active");
         if (siteStatusBadge) {
-          siteStatusBadge.textContent = isPageEnabled ? "⚡智能(已匹配)" : "⚡智能(未匹配)";
+          siteStatusBadge.textContent = isRecruitmentPage ? "⚡智能(网申页)" : "⚡智能(普通页)";
           siteStatusBadge.style.color = "var(--primary)";
         }
       }
@@ -2873,13 +2872,16 @@
           await saveDomainRules(wl, bl);
           siteMenu.classList.add("rf-hidden");
           const res = await checkPageActivation();
-          isPageEnabled = res.enabled;
-          if (isPageEnabled) {
-            showToast("⚡ 已恢复为此网站默认智能检测 (当前匹配为网申页面)");
+          isRecruitmentPage = res.isRecruitment;
+          isPillEnabled = res.pillEnabled;
+          isBlacklisted = res.isBlacklisted;
+
+          // 恢复智能模式：小球常驻，气泡由是否网申页面决定
+          triggerBtn.classList.remove("rf-hidden");
+          if (isRecruitmentPage) {
+            showToast("⚡ 已恢复智能模式：当前为网申页面，已启用智能气泡！");
           } else {
-            showToast("⚡ 已恢复为此网站智能检测 (非网申页面已自动隐藏)");
-            triggerBtn.classList.add("rf-hidden");
-            cardModal.classList.add("rf-hidden");
+            showToast("⚡ 已恢复智能模式：悬浮按钮常驻，普通页面不弹气泡打扰");
             hidePill();
           }
           updateSiteMenuUI();
@@ -2902,9 +2904,11 @@
           const wl = Array.from(new Set([...(storageData.rf_whitelist_domains || []), currentHostname]));
           const bl = (storageData.rf_blacklist_domains || []).filter(d => d !== currentHostname);
           await saveDomainRules(wl, bl);
-          isPageEnabled = true;
+          isPillEnabled = true;
+          isBlacklisted = false;
           siteMenu.classList.add("rf-hidden");
-          showToast("✅ 已设置：在此网站始终自动显示悬浮卡片与气泡！");
+          triggerBtn.classList.remove("rf-hidden");
+          showToast("✅ 已设置：在此网站输入框聚焦时始终自动弹推荐气泡！");
           updateSiteMenuUI();
         });
       }
@@ -2925,12 +2929,13 @@
           const bl = Array.from(new Set([...(storageData.rf_blacklist_domains || []), currentHostname]));
           const wl = (storageData.rf_whitelist_domains || []).filter(d => d !== currentHostname);
           await saveDomainRules(wl, bl);
-          isPageEnabled = false;
+          isPillEnabled = false;
+          isBlacklisted = true;
           siteMenu.classList.add("rf-hidden");
           cardModal.classList.add("rf-hidden");
           triggerBtn.classList.add("rf-hidden");
           hidePill();
-          showToast("🚫 已设置：在此网站禁止自动弹出 (若需要可点击扩展图标唤出)");
+          showToast("🚫 已设置：在此网站彻底隐藏悬浮球 (需要时可点插件图标唤出)");
           updateSiteMenuUI();
         });
       }
@@ -2938,8 +2943,17 @@
 
     // 19. 页面智能启用状态初始化判定
     checkPageActivation().then((res) => {
-      isPageEnabled = res.enabled;
-      if (isPageEnabled) {
+      isRecruitmentPage = res.isRecruitment;
+      isPillEnabled = res.pillEnabled;
+      isBlacklisted = res.isBlacklisted;
+
+      if (isBlacklisted) {
+        // 用户黑名单：彻底隐藏小球与气泡
+        triggerBtn.classList.add("rf-hidden");
+        cardModal.classList.add("rf-hidden");
+        hidePill();
+      } else {
+        // 默认状态：小球始终显示（方便随时点击），大卡片保持折叠，绝不自动弹大卡片遮挡屏幕
         if (isCardCollapsed) {
           triggerBtn.classList.remove("rf-hidden");
           cardModal.classList.add("rf-hidden");
@@ -2947,11 +2961,6 @@
           triggerBtn.classList.add("rf-hidden");
           cardModal.classList.remove("rf-hidden");
         }
-      } else {
-        // 非网申页面且未加入白名单：静默隐藏悬浮球与卡片，不干扰日常浏览
-        triggerBtn.classList.add("rf-hidden");
-        cardModal.classList.add("rf-hidden");
-        hidePill();
       }
       updateSiteMenuUI();
     });
