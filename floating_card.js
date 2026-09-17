@@ -53,6 +53,86 @@
   let resumesList = [];
   let activeResumeId = "default";
   let isCardCollapsed = localStorage.getItem("rf_card_collapsed") === "true";
+  let isPageEnabled = false; // 当前页面是否激活悬浮卡片与气泡
+
+  // 获取当前网站主机名
+  const currentHostname = window.location.hostname || "local";
+
+  // 检查当前页面是否属于网申/招聘相关页面或用户配置的允许域名
+  async function checkPageActivation() {
+    // 1. 本地测试页面始终启用
+    if (window.location.protocol === "file:" || window.location.href.includes("test_page.html")) {
+      return { enabled: true, reason: "local_test" };
+    }
+
+    try {
+      // 2. 从本地存储读取用户自定义的黑白名单
+      const storageData = await new Promise((resolve) => {
+        if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local) {
+          chrome.storage.local.get(["rf_whitelist_domains", "rf_blacklist_domains", "rf_auto_detect_mode"], resolve);
+        } else {
+          resolve({
+            rf_whitelist_domains: JSON.parse(localStorage.getItem("rf_whitelist_domains") || "[]"),
+            rf_blacklist_domains: JSON.parse(localStorage.getItem("rf_blacklist_domains") || "[]"),
+            rf_auto_detect_mode: localStorage.getItem("rf_auto_detect_mode") || "smart"
+          });
+        }
+      });
+
+      const whitelist = storageData.rf_whitelist_domains || [];
+      const blacklist = storageData.rf_blacklist_domains || [];
+
+      // 用户黑名单优先
+      if (blacklist.some(domain => currentHostname === domain || currentHostname.endsWith("." + domain))) {
+        return { enabled: false, reason: "user_blacklisted" };
+      }
+
+      // 用户白名单
+      if (whitelist.some(domain => currentHostname === domain || currentHostname.endsWith("." + domain))) {
+        return { enabled: true, reason: "user_whitelisted" };
+      }
+
+      // 3. 智能检测网申与招聘系统特征 (Smart Detection)
+      const href = window.location.href.toLowerCase();
+      const recruitmentKeywords = [
+        "zhaopin", "liepin", "51job", "lagou", "zhipin", "boss",
+        "moka", "mokahr", "beisen", "italent", "nowcoder", "niuke",
+        "job", "jobs", "career", "careers", "campus", "hire", "hiring",
+        "recruit", "recruitment", "apply", "applicant", "resume", "cv",
+        "ats", "candidate", "jobhub", "dajie", "shixiseng", "xiaoyuan"
+      ];
+
+      // URL 关键词命中
+      const urlMatched = recruitmentKeywords.some(kw => href.includes(kw));
+      if (urlMatched) {
+        return { enabled: true, reason: "url_matched" };
+      }
+
+      // 页面 DOM 内容特征命中 (页面包含多个网申/简历关键短语)
+      const pageText = (document.body ? document.body.innerText || "" : "").slice(0, 15000);
+      const domKeywords = [
+        "基本信息", "求职意向", "教育背景", "教育经历", "工作经历",
+        "工作经验", "实习经历", "实习经验", "项目经历", "项目经验",
+        "个人信息", "简历信息", "最高学历", "毕业院校", "期望薪资",
+        "期望工作地", "专业技能", "自我评价", "紧急联系人"
+      ];
+      let matchCount = 0;
+      for (const kw of domKeywords) {
+        if (pageText.includes(kw)) {
+          matchCount++;
+          if (matchCount >= 2) break; // 只要命中2个以上即视为招聘网申页面
+        }
+      }
+
+      if (matchCount >= 2) {
+        return { enabled: true, reason: "dom_content_matched" };
+      }
+
+      return { enabled: false, reason: "not_recruitment_page" };
+    } catch (e) {
+      return { enabled: false, reason: "check_error" };
+    }
+  }
 
   // 创建宿主节点
   const host = document.createElement("div");
@@ -747,6 +827,58 @@
       color: var(--text-main);
     }
 
+    /* 网站弹出设置菜单 */
+    .rf-site-menu {
+      position: absolute;
+      top: 44px;
+      right: 10px;
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+      padding: 8px;
+      width: 240px;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      animation: rf-menu-in 0.15s ease-out;
+    }
+    @keyframes rf-menu-in {
+      from { opacity: 0; transform: translateY(-6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .rf-site-menu-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      padding: 2px 4px 6px;
+      border-bottom: 1px solid #f1f5f9;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .rf-site-menu-item {
+      font-size: 12px;
+      color: var(--text-main);
+      padding: 6px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.12s;
+      user-select: none;
+    }
+    .rf-site-menu-item:hover {
+      background: var(--bg-hover);
+    }
+    .rf-site-menu-item.active {
+      background: var(--primary-light);
+      color: var(--primary);
+      font-weight: 600;
+    }
+
     /* Toast 提示 */
     .rf-toast {
       position: absolute;
@@ -816,6 +948,7 @@
             <span style="font-size: 10px; font-weight: normal; color: var(--text-muted); opacity: 0.85;">(双击折叠)</span>
           </div>
           <div class="rf-header-controls">
+            <button class="rf-icon-btn" id="rf-btn-site-setting" title="当前网站自动弹出设置 (智能/始终/禁止)">🌐</button>
             <button class="rf-icon-btn" id="rf-btn-mode-toggle" title="切换模式 (Alt+E)：当前为【填报模式】，点击进入【修改模式】">✏️</button>
             <button class="rf-icon-btn" id="rf-btn-opacity" title="调节透明度: 100% / 75% / 45%">💧</button>
             <button class="rf-icon-btn" id="rf-btn-ghost" title="开启鼠标穿透 (Alt+T)：卡片变半透明且可直接点击穿透底下的网页">👻</button>
@@ -829,6 +962,26 @@
             <button class="rf-icon-btn rf-btn-close" id="rf-btn-minimize" title="折叠卡片">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/></svg>
             </button>
+          </div>
+        </div>
+
+        <!-- 网站弹出控制下拉浮层 -->
+        <div class="rf-site-menu rf-hidden" id="rf-site-menu">
+          <div class="rf-site-menu-title">
+            <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 150px;">域名: <b id="rf-site-domain-text">current</b></span>
+            <span id="rf-site-status-badge" style="font-size: 10px; color: var(--primary); font-weight: bold;">⚡智能</span>
+          </div>
+          <div class="rf-site-menu-item active" id="rf-opt-site-auto" title="仅在招聘与网申表单页面自动显示">
+            <span>⚡</span>
+            <span>智能检测 (仅网申页自动弹出)</span>
+          </div>
+          <div class="rf-site-menu-item" id="rf-opt-site-always" title="无论什么页面均自动弹出">
+            <span>✅</span>
+            <span>在此网站始终弹出 (加入白名单)</span>
+          </div>
+          <div class="rf-site-menu-item" id="rf-opt-site-never" title="绝不自动弹出，仅在点击图标时唤起">
+            <span>🚫</span>
+            <span>在此网站禁止弹出 (加入黑名单)</span>
           </div>
         </div>
 
@@ -1147,6 +1300,15 @@
   const modeBtnEdit = shadow.getElementById("rf-mode-btn-edit");
   const hintText = shadow.getElementById("rf-hint-text");
   let isEditMode = false;
+
+  // 网站弹出设置节点引用
+  const btnSiteSetting = shadow.getElementById("rf-btn-site-setting");
+  const siteMenu = shadow.getElementById("rf-site-menu");
+  const siteDomainText = shadow.getElementById("rf-site-domain-text");
+  const siteStatusBadge = shadow.getElementById("rf-site-status-badge");
+  const optSiteAuto = shadow.getElementById("rf-opt-site-auto");
+  const optSiteAlways = shadow.getElementById("rf-opt-site-always");
+  const optSiteNever = shadow.getElementById("rf-opt-site-never");
 
   // 跟随智能气泡节点
   const inlinePill = shadow.getElementById("rf-inline-pill");
@@ -1778,6 +1940,8 @@
 
   function showPillForInput(inputEl) {
     if (!inputEl) return;
+    // 仅在当前页面已激活（网申相关页面或用户设置允许）时才弹出智能气泡
+    if (!isPageEnabled) return;
     const target = resolveTargetControl(inputEl) || inputEl;
 
     let match = null;
@@ -1963,6 +2127,12 @@
     }
 
     function toggleCard(expand, mousePos) {
+      if (!isPageEnabled) {
+        isPageEnabled = true;
+        triggerBtn.classList.remove("rf-hidden");
+        showToast("🌐 已在当前页面手动启用简历助手");
+        updateSiteMenuUI();
+      }
       const willExpand = expand !== undefined ? expand : cardModal.classList.contains("rf-hidden");
       if (willExpand) {
         expandCard();
@@ -2608,7 +2778,185 @@
       }
     });
 
-    // 18. 监听 background 发来的展开切换消息
+    // 18. 网站弹出规则管理交互与状态更新
+    async function updateSiteMenuUI() {
+      if (!siteDomainText) return;
+      siteDomainText.textContent = currentHostname;
+
+      let storageData;
+      try {
+        storageData = await new Promise((resolve) => {
+          if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local) {
+            chrome.storage.local.get(["rf_whitelist_domains", "rf_blacklist_domains"], resolve);
+          } else {
+            resolve({
+              rf_whitelist_domains: JSON.parse(localStorage.getItem("rf_whitelist_domains") || "[]"),
+              rf_blacklist_domains: JSON.parse(localStorage.getItem("rf_blacklist_domains") || "[]")
+            });
+          }
+        });
+      } catch (e) {
+        storageData = { rf_whitelist_domains: [], rf_blacklist_domains: [] };
+      }
+
+      const whitelist = storageData.rf_whitelist_domains || [];
+      const blacklist = storageData.rf_blacklist_domains || [];
+
+      if (optSiteAuto) optSiteAuto.classList.remove("active");
+      if (optSiteAlways) optSiteAlways.classList.remove("active");
+      if (optSiteNever) optSiteNever.classList.remove("active");
+
+      if (blacklist.some(d => currentHostname === d || currentHostname.endsWith("." + d))) {
+        if (optSiteNever) optSiteNever.classList.add("active");
+        if (siteStatusBadge) {
+          siteStatusBadge.textContent = "🚫已禁用";
+          siteStatusBadge.style.color = "var(--danger)";
+        }
+      } else if (whitelist.some(d => currentHostname === d || currentHostname.endsWith("." + d))) {
+        if (optSiteAlways) optSiteAlways.classList.add("active");
+        if (siteStatusBadge) {
+          siteStatusBadge.textContent = "✅始终弹出";
+          siteStatusBadge.style.color = "#059669";
+        }
+      } else {
+        if (optSiteAuto) optSiteAuto.classList.add("active");
+        if (siteStatusBadge) {
+          siteStatusBadge.textContent = isPageEnabled ? "⚡智能(已匹配)" : "⚡智能(未匹配)";
+          siteStatusBadge.style.color = "var(--primary)";
+        }
+      }
+    }
+
+    if (btnSiteSetting && siteMenu) {
+      btnSiteSetting.addEventListener("click", (e) => {
+        e.stopPropagation();
+        siteMenu.classList.toggle("rf-hidden");
+        if (!siteMenu.classList.contains("rf-hidden")) {
+          updateSiteMenuUI();
+        }
+      });
+
+      cardModal.addEventListener("click", (e) => {
+        if (!siteMenu.classList.contains("rf-hidden") && !siteMenu.contains(e.target) && e.target !== btnSiteSetting) {
+          siteMenu.classList.add("rf-hidden");
+        }
+      });
+
+      async function saveDomainRules(newWl, newBl) {
+        try {
+          if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local) {
+            await chrome.storage.local.set({
+              rf_whitelist_domains: newWl,
+              rf_blacklist_domains: newBl
+            });
+          }
+        } catch(e) {}
+        localStorage.setItem("rf_whitelist_domains", JSON.stringify(newWl));
+        localStorage.setItem("rf_blacklist_domains", JSON.stringify(newBl));
+      }
+
+      if (optSiteAuto) {
+        optSiteAuto.addEventListener("click", async (e) => {
+          e.stopPropagation();
+          const storageData = await new Promise(r => {
+            if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local) {
+              chrome.storage.local.get(["rf_whitelist_domains", "rf_blacklist_domains"], r);
+            } else {
+              r({
+                rf_whitelist_domains: JSON.parse(localStorage.getItem("rf_whitelist_domains") || "[]"),
+                rf_blacklist_domains: JSON.parse(localStorage.getItem("rf_blacklist_domains") || "[]")
+              });
+            }
+          });
+          const wl = (storageData.rf_whitelist_domains || []).filter(d => d !== currentHostname);
+          const bl = (storageData.rf_blacklist_domains || []).filter(d => d !== currentHostname);
+          await saveDomainRules(wl, bl);
+          siteMenu.classList.add("rf-hidden");
+          const res = await checkPageActivation();
+          isPageEnabled = res.enabled;
+          if (isPageEnabled) {
+            showToast("⚡ 已恢复为此网站默认智能检测 (当前匹配为网申页面)");
+          } else {
+            showToast("⚡ 已恢复为此网站智能检测 (非网申页面已自动隐藏)");
+            triggerBtn.classList.add("rf-hidden");
+            cardModal.classList.add("rf-hidden");
+            hidePill();
+          }
+          updateSiteMenuUI();
+        });
+      }
+
+      if (optSiteAlways) {
+        optSiteAlways.addEventListener("click", async (e) => {
+          e.stopPropagation();
+          const storageData = await new Promise(r => {
+            if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local) {
+              chrome.storage.local.get(["rf_whitelist_domains", "rf_blacklist_domains"], r);
+            } else {
+              r({
+                rf_whitelist_domains: JSON.parse(localStorage.getItem("rf_whitelist_domains") || "[]"),
+                rf_blacklist_domains: JSON.parse(localStorage.getItem("rf_blacklist_domains") || "[]")
+              });
+            }
+          });
+          const wl = Array.from(new Set([...(storageData.rf_whitelist_domains || []), currentHostname]));
+          const bl = (storageData.rf_blacklist_domains || []).filter(d => d !== currentHostname);
+          await saveDomainRules(wl, bl);
+          isPageEnabled = true;
+          siteMenu.classList.add("rf-hidden");
+          showToast("✅ 已设置：在此网站始终自动显示悬浮卡片与气泡！");
+          updateSiteMenuUI();
+        });
+      }
+
+      if (optSiteNever) {
+        optSiteNever.addEventListener("click", async (e) => {
+          e.stopPropagation();
+          const storageData = await new Promise(r => {
+            if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local) {
+              chrome.storage.local.get(["rf_whitelist_domains", "rf_blacklist_domains"], r);
+            } else {
+              r({
+                rf_whitelist_domains: JSON.parse(localStorage.getItem("rf_whitelist_domains") || "[]"),
+                rf_blacklist_domains: JSON.parse(localStorage.getItem("rf_blacklist_domains") || "[]")
+              });
+            }
+          });
+          const bl = Array.from(new Set([...(storageData.rf_blacklist_domains || []), currentHostname]));
+          const wl = (storageData.rf_whitelist_domains || []).filter(d => d !== currentHostname);
+          await saveDomainRules(wl, bl);
+          isPageEnabled = false;
+          siteMenu.classList.add("rf-hidden");
+          cardModal.classList.add("rf-hidden");
+          triggerBtn.classList.add("rf-hidden");
+          hidePill();
+          showToast("🚫 已设置：在此网站禁止自动弹出 (若需要可点击扩展图标唤出)");
+          updateSiteMenuUI();
+        });
+      }
+    }
+
+    // 19. 页面智能启用状态初始化判定
+    checkPageActivation().then((res) => {
+      isPageEnabled = res.enabled;
+      if (isPageEnabled) {
+        if (isCardCollapsed) {
+          triggerBtn.classList.remove("rf-hidden");
+          cardModal.classList.add("rf-hidden");
+        } else {
+          triggerBtn.classList.add("rf-hidden");
+          cardModal.classList.remove("rf-hidden");
+        }
+      } else {
+        // 非网申页面且未加入白名单：静默隐藏悬浮球与卡片，不干扰日常浏览
+        triggerBtn.classList.add("rf-hidden");
+        cardModal.classList.add("rf-hidden");
+        hidePill();
+      }
+      updateSiteMenuUI();
+    });
+
+    // 20. 监听 background 发来的展开切换消息
     if (typeof chrome !== "undefined" && chrome.runtime && chrome.runtime.onMessage) {
       chrome.runtime.onMessage.addListener((msg) => {
         if (msg && msg.action === "toggleFloatingCard") {
