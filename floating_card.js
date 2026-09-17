@@ -970,8 +970,11 @@
         <!-- 网站弹出控制下拉浮层 -->
         <div class="rf-site-menu rf-hidden" id="rf-site-menu">
           <div class="rf-site-menu-title">
-            <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 150px;">域名: <b id="rf-site-domain-text">current</b></span>
-            <span id="rf-site-status-badge" style="font-size: 10px; color: var(--primary); font-weight: bold;">⚡智能</span>
+            <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 140px;">域名: <b id="rf-site-domain-text">current</b></span>
+            <div style="display: flex; align-items: center; gap: 4px;">
+              <span id="rf-site-status-badge" style="font-size: 10px; color: var(--primary); font-weight: bold;">⚡智能</span>
+              <button id="rf-btn-close-site-menu" style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:13px; padding:0 2px; line-height:1;" title="关闭菜单">✕</button>
+            </div>
           </div>
           <div class="rf-site-menu-item active" id="rf-opt-site-auto" title="仅在招聘与网申表单页面自动显示">
             <span>⚡</span>
@@ -2835,11 +2838,27 @@
         }
       });
 
+      const btnCloseSiteMenu = shadow.getElementById("rf-btn-close-site-menu");
+      if (btnCloseSiteMenu) {
+        btnCloseSiteMenu.addEventListener("click", (e) => {
+          e.stopPropagation();
+          siteMenu.classList.add("rf-hidden");
+        });
+      }
+
+      // 点击卡片内部其它地方，关闭设置菜单
       cardModal.addEventListener("click", (e) => {
         if (!siteMenu.classList.contains("rf-hidden") && !siteMenu.contains(e.target) && e.target !== btnSiteSetting) {
           siteMenu.classList.add("rf-hidden");
         }
       });
+
+      // 点击页面其它任何地方，也关闭设置菜单
+      document.addEventListener("click", (e) => {
+        if (!siteMenu.classList.contains("rf-hidden")) {
+          siteMenu.classList.add("rf-hidden");
+        }
+      }, true);
 
       async function saveDomainRules(newWl, newBl) {
         try {
