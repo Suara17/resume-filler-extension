@@ -846,6 +846,10 @@
       gap: 5px;
       animation: rf-menu-in 0.15s ease-out;
     }
+    .rf-site-menu.rf-hidden,
+    .rf-site-menu[style*="display: none"] {
+      display: none !important;
+    }
     @keyframes rf-menu-in {
       from { opacity: 0; transform: translateY(-6px); }
       to { opacity: 1; transform: translateY(0); }
@@ -967,13 +971,13 @@
           </div>
         </div>
 
-        <!-- 网站弹出控制下拉浮层 -->
-        <div class="rf-site-menu rf-hidden" id="rf-site-menu">
+        <!-- 网站弹出控制下拉浮层 (默认绝对隐藏) -->
+        <div class="rf-site-menu rf-hidden" id="rf-site-menu" style="display: none;">
           <div class="rf-site-menu-title">
             <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 140px;">域名: <b id="rf-site-domain-text">current</b></span>
-            <div style="display: flex; align-items: center; gap: 4px;">
+            <div style="display: flex; align-items: center; gap: 6px;">
               <span id="rf-site-status-badge" style="font-size: 10px; color: var(--primary); font-weight: bold;">⚡智能</span>
-              <button id="rf-btn-close-site-menu" style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:13px; padding:0 2px; line-height:1;" title="关闭菜单">✕</button>
+              <button id="rf-btn-close-site-menu" style="background: #f1f5f9; border: 1px solid #cbd5e1; color: var(--text-secondary); cursor: pointer; font-size: 13px; font-weight: bold; width: 22px; height: 22px; border-radius: 4px; display: inline-flex; align-items: center; justify-content: center; line-height: 1; padding: 0;" title="关闭菜单">✕</button>
             </div>
           </div>
           <div class="rf-site-menu-item active" id="rf-opt-site-auto" title="仅在招聘与网申表单页面自动显示">
@@ -2830,11 +2834,26 @@
     }
 
     if (btnSiteSetting && siteMenu) {
+      function closeSiteMenu() {
+        if (!siteMenu) return;
+        siteMenu.classList.add("rf-hidden");
+        siteMenu.style.display = "none";
+      }
+
+      function openSiteMenu() {
+        if (!siteMenu) return;
+        siteMenu.classList.remove("rf-hidden");
+        siteMenu.style.display = "flex";
+        updateSiteMenuUI();
+      }
+
       btnSiteSetting.addEventListener("click", (e) => {
         e.stopPropagation();
-        siteMenu.classList.toggle("rf-hidden");
-        if (!siteMenu.classList.contains("rf-hidden")) {
-          updateSiteMenuUI();
+        const isHidden = siteMenu.classList.contains("rf-hidden") || siteMenu.style.display === "none";
+        if (isHidden) {
+          openSiteMenu();
+        } else {
+          closeSiteMenu();
         }
       });
 
@@ -2842,22 +2861,21 @@
       if (btnCloseSiteMenu) {
         btnCloseSiteMenu.addEventListener("click", (e) => {
           e.stopPropagation();
-          siteMenu.classList.add("rf-hidden");
+          e.preventDefault();
+          closeSiteMenu();
         });
       }
 
       // 点击卡片内部其它地方，关闭设置菜单
       cardModal.addEventListener("click", (e) => {
-        if (!siteMenu.classList.contains("rf-hidden") && !siteMenu.contains(e.target) && e.target !== btnSiteSetting) {
-          siteMenu.classList.add("rf-hidden");
+        if (!siteMenu.contains(e.target) && e.target !== btnSiteSetting && !btnSiteSetting.contains(e.target)) {
+          closeSiteMenu();
         }
       });
 
       // 点击页面其它任何地方，也关闭设置菜单
-      document.addEventListener("click", (e) => {
-        if (!siteMenu.classList.contains("rf-hidden")) {
-          siteMenu.classList.add("rf-hidden");
-        }
+      document.addEventListener("click", () => {
+        closeSiteMenu();
       }, true);
 
       async function saveDomainRules(newWl, newBl) {
@@ -2889,7 +2907,7 @@
           const wl = (storageData.rf_whitelist_domains || []).filter(d => d !== currentHostname);
           const bl = (storageData.rf_blacklist_domains || []).filter(d => d !== currentHostname);
           await saveDomainRules(wl, bl);
-          siteMenu.classList.add("rf-hidden");
+          closeSiteMenu();
           const res = await checkPageActivation();
           isRecruitmentPage = res.isRecruitment;
           isPillEnabled = res.pillEnabled;
@@ -2925,7 +2943,7 @@
           await saveDomainRules(wl, bl);
           isPillEnabled = true;
           isBlacklisted = false;
-          siteMenu.classList.add("rf-hidden");
+          closeSiteMenu();
           triggerBtn.classList.remove("rf-hidden");
           showToast("✅ 已设置：在此网站输入框聚焦时始终自动弹推荐气泡！");
           updateSiteMenuUI();
@@ -2950,7 +2968,7 @@
           await saveDomainRules(wl, bl);
           isPillEnabled = false;
           isBlacklisted = true;
-          siteMenu.classList.add("rf-hidden");
+          closeSiteMenu();
           cardModal.classList.add("rf-hidden");
           triggerBtn.classList.add("rf-hidden");
           hidePill();
