@@ -948,10 +948,10 @@
       <!-- 头部 -->
       <div class="rf-header" id="rf-header">
         <div class="rf-header-top">
-          <div class="rf-logo-title" id="rf-logo-title" title="双击此处立即折叠卡片 (单击小球就地展开)">
+          <div class="rf-logo-title" id="rf-logo-title" title="单击卡片任意空白区域立即折叠 (单击小球就地展开)">
             <span>🪄</span>
             <span>简历填充助手</span>
-            <span style="font-size: 10px; font-weight: normal; color: var(--text-muted); opacity: 0.85;">(双击折叠)</span>
+            <span style="font-size: 10px; font-weight: normal; color: var(--text-muted); opacity: 0.85;">(点空白折叠)</span>
           </div>
           <div class="rf-header-controls">
             <button class="rf-icon-btn" id="rf-btn-site-setting" title="当前网站自动弹出设置 (智能/始终/禁止)">🌐</button>
@@ -2159,21 +2159,45 @@
       collapseCard({ x: e.clientX, y: e.clientY });
     });
 
-    // 双击“简历填充助手”字样立即就地折叠！
-    const logoTitle = shadow.getElementById("rf-logo-title");
-    if (logoTitle) {
-      logoTitle.addEventListener("dblclick", (e) => {
-        e.stopPropagation();
-        e.preventDefault();
-        collapseCard({ x: e.clientX, y: e.clientY });
-      });
-    }
+    // 单击卡片任意非填写框区域或非功能按钮区域，即可切换到悬浮按钮形式
+    cardModal.addEventListener("click", (e) => {
+      // 1. 如果刚刚进行了拖动移动卡片位置，不触发折叠
+      if (cardJustDragged) return;
 
-    // 双击卡片头部标题栏任意空白处也支持就地折叠
-    cardHeader.addEventListener("dblclick", (e) => {
-      if (e.target.closest("button, select, input, .rf-icon-btn, .rf-btn-smart-fill")) return;
+      // 2. 如果用户当前在选中文本，避免收起
+      const selection = window.getSelection ? window.getSelection().toString().trim() : "";
+      if (selection.length > 0) return;
+
+      // 3. 检查点击目标是否属于填写输入框、可复制字段标签、操作按钮或功能控件
+      const interactiveEl = e.target.closest([
+        "input",
+        "textarea",
+        "select",
+        "button",
+        ".rf-form-control",
+        ".card-input",
+        "[data-copy-ref]",
+        ".rf-form-label",
+        ".rf-tab-item",
+        ".rf-mode-btn",
+        ".rf-mode-switch",
+        ".rf-select-version",
+        ".rf-btn-smart-fill",
+        ".rf-btn-add",
+        ".btn-delete-card",
+        ".rf-footer-link",
+        ".rf-icon-btn",
+        "#rf-site-menu",
+        ".rf-site-menu",
+        ".rf-site-menu-item",
+        "#rf-toast"
+      ].join(","));
+
+      // 如果点击的是具体的功能按钮、选项卡、输入框或复制标签，则正常执行对应功能，不折叠
+      if (interactiveEl) return;
+
+      // 否则说明点击的是卡片的空白/背景/间距区域，单击立即收起为悬浮球！
       e.stopPropagation();
-      e.preventDefault();
       collapseCard({ x: e.clientX, y: e.clientY });
     });
 
@@ -2606,11 +2630,14 @@
     let cardStartY = 0;
     let cardInitLeft = 0;
     let cardInitTop = 0;
+    let hasCardMoved = false;
+    let cardJustDragged = false;
 
     cardHeader.addEventListener("mousedown", (e) => {
       // 点击按钮、选择框或输入项时不触发拖动
-      if (e.target.closest("button, select, input, .rf-icon-btn, .rf-btn-smart-fill")) return;
+      if (e.target.closest("button, select, input, .rf-icon-btn, .rf-btn-smart-fill, #rf-site-menu")) return;
       isCardDragging = true;
+      hasCardMoved = false;
       cardStartX = e.clientX;
       cardStartY = e.clientY;
 
@@ -2628,6 +2655,9 @@
         if (!isCardDragging) return;
         const dx = moveEv.clientX - cardStartX;
         const dy = moveEv.clientY - cardStartY;
+        if (Math.abs(dx) > 4 || Math.abs(dy) > 4) {
+          hasCardMoved = true;
+        }
         let newL = cardInitLeft + dx;
         let newT = cardInitTop + dy;
 
@@ -2644,8 +2674,12 @@
         if (isCardDragging) {
           isCardDragging = false;
           cardModal.style.transition = "";
-          const curRect = cardModal.getBoundingClientRect();
-          localStorage.setItem("rf_card_pos", JSON.stringify({ left: curRect.left, top: curRect.top }));
+          if (hasCardMoved) {
+            cardJustDragged = true;
+            setTimeout(() => { cardJustDragged = false; }, 80);
+            const curRect = cardModal.getBoundingClientRect();
+            localStorage.setItem("rf_card_pos", JSON.stringify({ left: curRect.left, top: curRect.top }));
+          }
         }
         document.removeEventListener("mousemove", onCardMouseMove);
         document.removeEventListener("mouseup", onCardMouseUp);
